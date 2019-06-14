@@ -17,7 +17,7 @@ namespace MTFplus
 		)]
 	public class MTFplus : Plugin
 	{
-		public List<Subclass> subclasses = new List<Subclass>();
+		public static List<Subclass> subclasses = new List<Subclass>();
 		public override void OnDisable()
 		{
 			this.Info("Your CPU will now save 40ns congratulations");
@@ -31,18 +31,36 @@ namespace MTFplus
 		{
 			this.AddEventHandlers(new Events(this));
 		}
-
-		public void SetClass(Player	player, Subclass subclass)
+		public static System.Random random = new System.Random();
+		public IEnumerator<float> SetClass(Player player, Role role, ItemType[] inventory)
 		{
-			if(subclass.role != Role.NTF_CADET) player.ChangeRole(subclass.role, false, false, true, true);
-			foreach(Smod2.API.Item item in player.GetInventory())
+			if(role != Role.NTF_CADET) player.ChangeRole(role, false, false, true, true);
+			yield return 0.1f;
+			foreach (Smod2.API.Item item in player.GetInventory())
 			{
 				item.Remove();
 			}
-			foreach(ItemType item in subclass.inventory)
+			foreach (ItemType item in inventory)
 			{
 				player.GiveItem(item);
 			}
+		}
+	}
+	public static class ExtMethod
+	{
+		// found at https://stackoverflow.com/questions/273313/randomize-a-listt
+		public static List<T> Shuffle<T>(this IList<T> list)
+		{
+			int n = list.Count;
+			while (n > 1)
+			{
+				n--;
+				int k = MTFplus.random.Next(n + 1);
+				T value = list[k];
+				list[k] = list[n];
+				list[n] = value;
+			}
+			return (List<T>) list;
 		}
 	}
 }
