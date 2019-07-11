@@ -13,18 +13,19 @@ namespace MTFplus
 		id = "rogerfk.mtfplus",
 		version = "1.0",
 		SmodMajor = 3,
-		SmodMinor = 4,
+		SmodMinor = 5,
 		SmodRevision = 0,
 		configPrefix = "mtfp"
 		)]
 	public class MTFplus : Plugin
 	{
 		public static List<Subclass> subclasses = new List<Subclass>();
-		[ConfigOption]
-		public bool enabled = true;
 
 		[ConfigOption]
-		public int defaultAmmo = 120;
+		public bool enable = true;
+
+		[ConfigOption]
+		public bool useGlobal = false;
 
 		public override void OnDisable()
 		{
@@ -46,17 +47,20 @@ namespace MTFplus
 			yield return 0.1f;
 			if(subclass.role != Role.NTF_CADET) player.ChangeRole(subclass.role, false, false, true, true);
 			yield return 0.1f;
-			foreach (Smod2.API.Item item in player.GetInventory())
+			if (subclass.inventory.Count > 0)
 			{
-				item.Remove();
-			}
-			foreach (ItemType item in subclass.inventory)
-			{
-				player.GiveItem(item);
+				foreach (Smod2.API.Item item in player.GetInventory())
+				{
+					item.Remove();
+				}
+				foreach (ItemType item in subclass.inventory)
+				{
+					player.GiveItem(item);
+				} 
 			}
 			for(int i = 0; i<3; i++)
 			{
-				player.SetAmmo((AmmoType)i, subclass.ammo[i]);
+				if (subclass.ammo[i] > 0) player.SetAmmo((AmmoType)i, subclass.ammo[i]);
 			}
 		}
 	}

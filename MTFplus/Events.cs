@@ -16,8 +16,11 @@ namespace MTFplus
 		{
 			this.plugin = plugin;
 		}
+
 		public void OnTeamRespawn(TeamRespawnEvent ev)
 		{
+			if (!plugin.enable) return;
+
 			if (ev.SpawnChaos || ev.PlayerList.Count == 0) return;
 
 			MTFplus.subclasses.Shuffle();
@@ -44,11 +47,21 @@ namespace MTFplus
 
 		public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
 		{
+			if (!plugin.enable) return;
+
 			string directory = FileManager.GetAppFolder() + @"MTFplus";
 			if (!Directory.Exists(directory))
 			{
 				Directory.CreateDirectory(directory);
-				plugin.Info("Created " + directory + ". Fill it with your own MTF classes!");
+				File.WriteAllText(directory + "\\medic.txt",
+					"Inventory: SENIOR_GUARD_KEYCARD, P90, RADIO, DISARMER, MEDKIT, MEDKIT, MEDKIT, MEDKIT\n" +
+					"Max: 2\n" +
+					"Role: NTF_CADET\n" +
+					"Probability: 80\n" +
+					"Ammo5: 200\n" +
+					"Ammo7: 70\n" +
+					"Ammo9: 50");
+				plugin.Info("Created " + directory + ". Fill it with your own MTF classes!\nAdditionally, a template class (Medic) was created with it");
 				return;
 			}
 			string[] filenames = Directory.GetFiles(directory, "*.txt");
@@ -61,9 +74,10 @@ namespace MTFplus
 				// Default values
 				Role role = Role.NTF_CADET;
 				int maxCount = 1;
-				List<ItemType> inventory = new List<ItemType>() { ItemType.SENIOR_GUARD_KEYCARD, ItemType.P90, ItemType.RADIO, ItemType.DISARMER, ItemType.MEDKIT, ItemType.WEAPON_MANAGER_TABLET };
 				float probability = 100f;
-				int[] ammo = new int[3] { plugin.defaultAmmo, plugin.defaultAmmo, plugin.defaultAmmo };
+
+				List<ItemType> inventory = new List<ItemType>(); //new List<ItemType>() { ItemType.SENIOR_GUARD_KEYCARD, ItemType.P90, ItemType.RADIO, ItemType.DISARMER, ItemType.MEDKIT, ItemType.WEAPON_MANAGER_TABLET };
+				int[] ammo = new int[3] { 0, 0, 0 };
 				foreach(string data in lines)
 				{
 					if (data.StartsWith("Inventory"))
@@ -83,7 +97,7 @@ namespace MTFplus
 						}
 						if (inventoryTemp.Count == 0)
 						{
-							plugin.Error("\"" + filename + "\" doesn't have any valid items. Are you sure this is right?");
+							plugin.Error("\"" + filename + "\" doesn't have any valid items. Are you sure this is intended?");
 						}
 						else
 						{
