@@ -24,7 +24,7 @@ namespace MTFplus
 			Stack<Player> validPlayers = new Stack<Player>(ev.PlayerList.Where(x => x.TeamRole.Role == Role.NTF_CADET).OrderBy(x => MTFplus.random.Next()));
 			foreach (Subclass subclass in MTFplus.subclasses)
 			{
-				if (validPlayers.Count < 0)
+				if (validPlayers.Count <= 0)
 				{
 					plugin.Info("Subclass " + subclass.name + " didn't spawn this wave (not enough players)!");
 					continue;
@@ -33,11 +33,11 @@ namespace MTFplus
 				{
 					Player luckyBoi = validPlayers.Pop();
 					plugin.Info("Spawning " + luckyBoi.Name + " as " + subclass.name);
-					MEC.Timing.RunCoroutine(plugin.SetClass(luckyBoi, subclass.role, subclass.inventory));
+					MEC.Timing.RunCoroutine(plugin.SetClass(luckyBoi, subclass));
 				}
 				else
 				{
-					plugin.Info("Too bad, but " + subclass.name + " didn't get a chance to spawn!");
+					plugin.Info("Too bad, but " + subclass.name + " didn't get a chance to spawn this wave!");
 				}
 			}
 		}
@@ -54,27 +54,22 @@ namespace MTFplus
 			string[] filenames = Directory.GetFiles(directory, "*.txt");
 			foreach (string filename in filenames)
 			{
-				plugin.Info("Fetching " + filename + "...");
-				string[] data = FileManager.ReadAllLines(filename).Where(x => !string.IsNullOrWhiteSpace(x)).Where(x => x[0] != '#').ToArray();
+				string name = filename.Remove(0, directory.Length + 1);
+				plugin.Info("Fetching " + name + "...");
+				string[] lines = FileManager.ReadAllLines(filename).Where(x => !string.IsNullOrWhiteSpace(x)).Where(x => x[0] != '#').ToArray();
 
-				if (data.Count() != 4)
-				{
-					plugin.Error("Bad format in " + filename + ". Please, read the plugin's GitHub.");
-					continue;
-				}
-				int i = 0;
-				// random values because I don't literally know how to do it otherwise without VS being mad about it
+				// Default values
 				Role role = Role.NTF_CADET;
-				int maxCount = 0;
-				List<ItemType> inventory = new List<ItemType>();
-				float probability = 0f;
-				bool error = false;
-				// These things below are me being nostalgic of C. Uncommented so it's harder to read. Don't copy this.
-				for (; i < 4; i++)
+				int maxCount = 1;
+				List<ItemType> inventory = new List<ItemType>() { ItemType.SENIOR_GUARD_KEYCARD, ItemType.P90, ItemType.RADIO, ItemType.DISARMER, ItemType.MEDKIT, ItemType.WEAPON_MANAGER_TABLET };
+				float probability = 100f;
+				int[] ammo = new int[3] { plugin.defaultAmmo, plugin.defaultAmmo, plugin.defaultAmmo };
+				foreach(string data in lines)
 				{
-					if (data[i].StartsWith("Inventory"))
+					if (data.StartsWith("Inventory"))
 					{
-						string[] invData = data[i].Remove(0, 10).Split(',');
+						string[] invData = data.Remove(0, 10).Split(',');
+						List<ItemType> inventoryTemp = new List<ItemType>();
 						foreach (string item in invData)
 						{
 							if (!Enum.TryParse(item.Trim(), out ItemType parsedItem))
@@ -83,58 +78,83 @@ namespace MTFplus
 							}
 							else
 							{
-								inventory.Add(parsedItem);
+								inventoryTemp.Add(parsedItem);
 							}
 						}
-						if (inventory.Count() == 0)
+						if (inventoryTemp.Count == 0)
 						{
-							plugin.Error('\"' + filename + "\" doesn't have any valid items. Are you sure this is right?");
-							error = true;
-							break;
+							plugin.Error("\"" + filename + "\" doesn't have any valid items. Are you sure this is right?");
+						}
+						else
+						{
+							inventory.Clear(); // I don't trust C#'s garbage collector :smug:
+							inventory = inventoryTemp;
 						}
 					}
-					else if (data[i].StartsWith("Role"))
+					else if (data.StartsWith("Role"))
 					{
-						string roleData = data[i].Remove(0, 5).Trim();
-						if (!Enum.TryParse(roleData, out role))
+						string roleData = data.Remove(0, 5).Trim();
+						if (!Enum.TryParse(roleData, out Role roleParsed))
 						{
 							plugin.Error("Invalid role \"" + roleData + "\" in " + filename + '!');
-							error = true;
-							break;
+						}
+						else
+						{
+							role = roleParsed;
 						}
 					}
-					else if (data[i].StartsWith("Max"))
+					else if (data.StartsWith("Max"))
 					{
-						string maxData = data[i].Remove(0, 4).Trim();
-						if (!int.TryParse(maxData, out maxCount))
+						string maxData = data.Remove(0, 4).Trim();
+						if (!int.TryParse(maxData, out int probablyMaxCount))
 						{
 							plugin.Error("Invalid maximum count \"" + maxData + "\" in " + filename + '!');
-							error = true;
-							break;
+						}
+						else
+						{
+							maxCount = probablyMaxCount;
 						}
 					}
-					else if (data[i].StartsWith("Probability"))
+					else if (data.StartsWith("Probability"))
 					{
-						string prob = data[i].Remove(0, 12).Trim();
-						if (!float.TryParse(prob, out probability))
+						string prob = data.Remove(0, 12).Trim();
+						if (!float.TryParse(prob, out float probabilitey))
 						{
 							plugin.Error("Invalid probability \"" + prob + "\" in " + filename + '!');
-							error = true;
-							break;
+						}
+						else
+						{
+							probability = probabilitey;
+						}
+					}
+					else if (data.StartsWith("Ammo"))
+					{
+						if(!int.TryParse(data[4].ToString(), out int ammoTyperino))
+						{
+							plugin.Error("\"Ammo\" \"" + data + "\" unrecognized in " + filename + '!');
+						}
+						int ammoType = (ammoTyperino - 5) / 2;
+						if(ammoType < 0 || ammoType > 2)
+						{
+							plugin.Error(data[4].ToString() + " is not a type of ammo! (in line: " + data + " in " + filename);
+						}
+						string ammoStr = data.Remove(0, 6).Trim();
+						if (!int.TryParse(ammoStr, out int parsedAmmo))
+						{
+							plugin.Error("Invalid Ammo \"" + ammoStr + "\" in " + filename + '!');
+						}
+						else
+						{
+							ammo[ammoType] = parsedAmmo;
 						}
 					}
 					else
 					{
-						plugin.Error("Unknown line: " + data[i]);
-						error = true;
-						break;
+						plugin.Error("Unknown line: " + data + " in file " + filename);
 					}
 				}
-				if (error) continue;
-
-				string name = filename.Remove(0, directory.Count() + 1);
-				name = name.Substring(0, name.Count() - 4);
-				for (i = 0; i < maxCount; i++) MTFplus.subclasses.Add(new Subclass(name, role, inventory.ToArray(), probability));
+				name = name.Substring(0, name.Length - 4);
+				for (int i = 0; i < maxCount; i++) MTFplus.subclasses.Add(new Subclass(name, role, inventory, probability, ammo));
 			}
 		}
 	}

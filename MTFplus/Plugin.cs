@@ -2,6 +2,7 @@
 using Smod2;
 using Smod2.API;
 using Smod2.Attributes;
+using Smod2.Config;
 
 namespace MTFplus
 {
@@ -13,14 +14,21 @@ namespace MTFplus
 		version = "1.0",
 		SmodMajor = 3,
 		SmodMinor = 4,
-		SmodRevision = 0
+		SmodRevision = 0,
+		configPrefix = "mtfp"
 		)]
 	public class MTFplus : Plugin
 	{
 		public static List<Subclass> subclasses = new List<Subclass>();
+		[ConfigOption]
+		public bool enabled = true;
+
+		[ConfigOption]
+		public int defaultAmmo = 120;
+
 		public override void OnDisable()
 		{
-			this.Info("Your CPU will now save 40ns congratulations");
+			this.Info("Disabled MTF Plus");
 		}
 		public override void OnEnable()
 		{
@@ -29,38 +37,27 @@ namespace MTFplus
 
 		public override void Register()
 		{
-			this.AddEventHandlers(new Events(this));
+			this.AddEventHandlers(new Events(this), Smod2.Events.Priority.Low);
 		}
 		public static System.Random random = new System.Random();
-		public IEnumerator<float> SetClass(Player player, Role role, ItemType[] inventory)
+
+		public IEnumerator<float> SetClass(Player player, Subclass subclass)
 		{
-			if(role != Role.NTF_CADET) player.ChangeRole(role, false, false, true, true);
+			yield return 0.1f;
+			if(subclass.role != Role.NTF_CADET) player.ChangeRole(subclass.role, false, false, true, true);
 			yield return 0.1f;
 			foreach (Smod2.API.Item item in player.GetInventory())
 			{
 				item.Remove();
 			}
-			foreach (ItemType item in inventory)
+			foreach (ItemType item in subclass.inventory)
 			{
 				player.GiveItem(item);
 			}
-		}
-	}
-	public static class ExtMethod
-	{
-		// found at https://stackoverflow.com/questions/273313/randomize-a-listt
-		public static List<T> Shuffle<T>(this IList<T> list)
-		{
-			int n = list.Count;
-			while (n > 1)
+			for(int i = 0; i<3; i++)
 			{
-				n--;
-				int k = MTFplus.random.Next(n + 1);
-				T value = list[k];
-				list[k] = list[n];
-				list[n] = value;
+				player.SetAmmo((AmmoType)i, subclass.ammo[i]);
 			}
-			return (List<T>) list;
 		}
 	}
 }
