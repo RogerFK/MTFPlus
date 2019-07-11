@@ -26,7 +26,7 @@ Those are all the available options. Below is a table with all the options that 
 The only config, currently, is `mtfp_enable`. Works as advertised.
 
 ## Default values
-| Key | Default value | Definition |  |  |
+| Key | Default value | Definition |
 |:-----------------:|:-------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:
 | Inventory | `default_item_cadet` config from Smod2 | The items the guy will respawn with. Used as in Smod2 |
 | Max | 1 | The maximum amount of players that can respawn as this class |
