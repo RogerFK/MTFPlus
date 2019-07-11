@@ -19,8 +19,8 @@ Role: NTF_CADET
 Probability: 80
 Ammo5: 200
 Ammo7: 70
-Ammo9: 50```
-
+Ammo9: 50
+```
 Those are all the available options. Below is a table with all the options that let you configure by default some fields you might not use for some classes. If some class is missing, for example, "Ammo5", it will use the default value listed below or one you might configure (as always, in config_gameplay.txt)
 
 # Configs / Default values
