@@ -24,9 +24,6 @@ namespace MTFplus
 		[ConfigOption]
 		public bool enable = true;
 
-		[ConfigOption]
-		public bool useGlobal = false;
-
 		public override void OnDisable()
 		{
 			this.Info("Disabled MTF Plus");
@@ -61,6 +58,10 @@ namespace MTFplus
 			for(int i = 0; i<3; i++)
 			{
 				if (subclass.ammo[i] > 0) player.SetAmmo((AmmoType)i, subclass.ammo[i]);
+			}
+			if (!string.IsNullOrWhiteSpace(subclass.broadcast))
+			{
+				player.PersonalBroadcast(5, subclass.broadcast, false);
 			}
 		}
 	}

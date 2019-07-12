@@ -23,24 +23,24 @@ namespace MTFplus
 
 			if (ev.SpawnChaos || ev.PlayerList.Count == 0) return;
 
-			MTFplus.subclasses.Shuffle();
+			MTFplus.subclasses.OrderBy(x => MTFplus.random.Next());
 			Stack<Player> validPlayers = new Stack<Player>(ev.PlayerList.Where(x => x.TeamRole.Role == Role.NTF_CADET).OrderBy(x => MTFplus.random.Next()));
 			foreach (Subclass subclass in MTFplus.subclasses)
 			{
 				if (validPlayers.Count <= 0)
 				{
-					plugin.Info("Subclass " + subclass.name + " didn't spawn this wave (not enough players)!");
+					plugin.Debug("Subclass " + subclass.name + " didn't spawn this wave (not enough players)!");
 					continue;
 				}
 				if (subclass.probability * 100 >= MTFplus.random.Next(0, 10000))
 				{
 					Player luckyBoi = validPlayers.Pop();
-					plugin.Info("Spawning " + luckyBoi.Name + " as " + subclass.name);
+					plugin.Debug("Spawning " + luckyBoi.Name + " as " + subclass.name);
 					MEC.Timing.RunCoroutine(plugin.SetClass(luckyBoi, subclass));
 				}
 				else
 				{
-					plugin.Info("Too bad, but " + subclass.name + " didn't get a chance to spawn this wave!");
+					plugin.Debug("Bad luck for " + subclass.name + ". Skipping to next subclass");
 				}
 			}
 		}
@@ -48,7 +48,7 @@ namespace MTFplus
 		public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
 		{
 			if (!plugin.enable) return;
-
+			MTFplus.subclasses.Clear();
 			string directory = FileManager.GetAppFolder() + @"MTFplus";
 			if (!Directory.Exists(directory))
 			{
@@ -68,7 +68,7 @@ namespace MTFplus
 			foreach (string filename in filenames)
 			{
 				string name = filename.Remove(0, directory.Length + 1);
-				plugin.Info("Fetching " + name + "...");
+				plugin.Debug("Fetching " + name + "...");
 				string[] lines = FileManager.ReadAllLines(filename).Where(x => !string.IsNullOrWhiteSpace(x)).Where(x => x[0] != '#').ToArray();
 
 				// Default values
@@ -78,6 +78,7 @@ namespace MTFplus
 
 				List<ItemType> inventory = new List<ItemType>(); //new List<ItemType>() { ItemType.SENIOR_GUARD_KEYCARD, ItemType.P90, ItemType.RADIO, ItemType.DISARMER, ItemType.MEDKIT, ItemType.WEAPON_MANAGER_TABLET };
 				int[] ammo = new int[3] { 0, 0, 0 };
+				string broadcast = string.Empty;
 				foreach(string data in lines)
 				{
 					if (data.StartsWith("Inventory"))
@@ -162,13 +163,17 @@ namespace MTFplus
 							ammo[ammoType] = parsedAmmo;
 						}
 					}
+					else if (data.StartsWith("Broadcast"))
+					{
+						broadcast = data.Remove(0, 10);
+					}
 					else
 					{
 						plugin.Error("Unknown line: " + data + " in file " + filename);
 					}
 				}
 				name = name.Substring(0, name.Length - 4);
-				for (int i = 0; i < maxCount; i++) MTFplus.subclasses.Add(new Subclass(name, role, inventory, probability, ammo));
+				for (int i = 0; i < maxCount; i++) MTFplus.subclasses.Add(new Subclass(name, role, inventory, probability, ammo, broadcast));
 			}
 		}
 	}
