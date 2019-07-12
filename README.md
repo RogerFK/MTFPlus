@@ -21,7 +21,7 @@ Ammo5: 200
 Ammo7: 70
 Ammo9: 50
 ```
-Those are all the available options. Below is a table with all the options that let you configure by default some fields you might not use for some classes. If some class is missing, for example, "Ammo5", it will use the default value listed below or one you might configure (as always, in config_gameplay.txt)
+Those are all the available options, except for "Broadcast". That's used like every other field, for example, `Broadcast: You're a <b>Medic</b>. Go heal your teammates, big boy.`. Below is a table with all the options that let you configure by default some fields you might not use for some classes. If some class is missing, for example, "Ammo5", it will use the default value listed below or one you might configure (as always, in config_gameplay.txt)
 
 # Configs / Default values
 The only config, currently, is `mtfp_enable`. Works as advertised.
@@ -34,3 +34,4 @@ The only config, currently, is `mtfp_enable`. Works as advertised.
 | Role | NTF_CADET | The role they will be after respawning. Yes, you can randomly respawn a peanut. |
 | Probability | 100 | Works as a percentage. This is NOT the chance of one player to spawn as the class, this is the chance for the class to be spawned (and the player is randomly picked). So if it's too low, it will probably not respawn. |
 | Ammo5/Ammo7/Ammo9 | Default ones that probably come from storm37k's Default Ammo plugin | Ammo5 is only used by the MTF E-11 Rifle. MP7 and Logicer use Ammo7.  COM15, P90 and USP use Ammo9. |
+| Broadcast | Empty | Tells the player a broadcast after respawning as that class |
