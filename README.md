@@ -35,3 +35,7 @@ The only config, currently, is `mtfp_enable`. Works as advertised.
 | Probability | 100 | Works as a percentage. This is NOT the chance of one player to spawn as the class, this is the chance for the class to be spawned (and the player is randomly picked). So if it's too low, it will probably not respawn. |
 | Ammo5/Ammo7/Ammo9 | Default ones that probably come from storm37k's Default Ammo plugin | Ammo5 is only used by the MTF E-11 Rifle. MP7 and Logicer use Ammo7.  COM15, P90 and USP use Ammo9. |
 | Broadcast | Empty | Tells the player a broadcast after respawning as that class |
+
+# Simulate the plugin
+
+In case you don't trust this plugin because you never respawned as a subclass (or anyone rages about it), here, have a simulation: https://github.com/RogerFK/MTFPlusSim
