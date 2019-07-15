@@ -53,9 +53,14 @@ namespace MTFplus
 				foreach (ItemType item in subclass.inventory)
 				{
 					player.GiveItem(item);
-				} 
+				}
 			}
-			for(int i = 0; i<3; i++)
+			/*
+			 if the thing has itemmanager items and the thing isn't empty
+
+			 foreach(item thinghey) ItemManager.Items.Handlers[id].Create(ev.Player.GameObject thing's inventory, index)
+			 */
+			for (int i = 0; i<3; i++)
 			{
 				if (subclass.ammo[i] > 0) player.SetAmmo((AmmoType)i, subclass.ammo[i]);
 			}

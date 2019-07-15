@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Smod2;
 using Smod2.API;
 using Smod2.EventHandlers;
 using Smod2.Events;
@@ -12,6 +13,7 @@ namespace MTFplus
 	internal class Events : IEventHandlerTeamRespawn, IEventHandlerWaitingForPlayers
 	{
 		private readonly MTFplus plugin;
+		private bool IMbool { get; set; }
 		public Events(MTFplus plugin)
 		{
 			this.plugin = plugin;
@@ -47,6 +49,9 @@ namespace MTFplus
 
 		public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
 		{
+			// Check if ItemManager is installed and enabled on the server
+			IMbool = PluginManager.Manager.EnabledPlugins.Where(plugin => plugin.Details.id == "4aiur.custom.itemmanager").Count() > 1;
+
 			if (!plugin.enable) return;
 			MTFplus.subclasses.Clear();
 			string directory = FileManager.GetAppFolder() + @"MTFplus";
