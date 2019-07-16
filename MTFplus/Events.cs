@@ -31,7 +31,7 @@ namespace MTFplus
 		private IEnumerator<float> RespawnPlus(IEnumerable<int> PlayerIds)
 		{
 			yield return MEC.Timing.WaitForSeconds(0.3f);
-			Stack<Player> cadets = new Stack<Player>(PluginManager.Manager.Server.GetPlayers(Role.NTF_CADET).Where(ply => PlayerIds.Contains(ply.PlayerId)));
+			Stack<Player> cadets = new Stack<Player>(PluginManager.Manager.Server.GetPlayers(Role.CHAOS_INSURGENCY).Where(ply => PlayerIds.Contains(ply.PlayerId)));
 			foreach (Subclass subclass in MTFplus.subclasses)
 			{
 				if (cadets.Count <= 0)
@@ -104,14 +104,21 @@ namespace MTFplus
 								{
 									if(int.TryParse(item.Substring(3), out int aux))
 									{
-										IMinventory.Add(aux, i);
-										continue;
+										if (ItemManager.Items.Handlers.ContainsKey(aux))
+										{
+											IMinventory.Add(aux, i);
+											inventory.Add(ItemType.COIN);
+										}
+										else
+										{
+											plugin.Error("Custom item (ItemManager) with ID: " + aux + " doesn't exist/isn't installed!");
+										}
 									}
 									else
 									{
 										plugin.Error("Invalid CustomItem \"" + item + " (" + item.Substring(3) + ")" + "\" in " + filename + "!");
-										continue;
 									}
+									continue;
 								}
 							}
 							if (!Enum.TryParse(item, out ItemType parsedItem))
