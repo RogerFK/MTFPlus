@@ -22,23 +22,28 @@ namespace MTFplus
 		public void OnTeamRespawn(TeamRespawnEvent ev)
 		{
 			if (!plugin.enable) return;
-
-			if (ev.SpawnChaos || ev.PlayerList.Count == 0) return;
-
+			
+			//if (ev.SpawnChaos || ev.PlayerList.Count == 0) return;
 			MTFplus.subclasses.OrderBy(x => MTFplus.random.Next());
-			Stack<Player> validPlayers = new Stack<Player>(ev.PlayerList.Where(x => x.TeamRole.Role == Role.NTF_CADET).OrderBy(x => MTFplus.random.Next()));
+			MEC.Timing.RunCoroutine(RespawnPlus(ev.PlayerList.Select(ply => ply.PlayerId)), MEC.Segment.FixedUpdate);
+		}
+
+		private IEnumerator<float> RespawnPlus(IEnumerable<int> PlayerIds)
+		{
+			yield return MEC.Timing.WaitForSeconds(0.3f);
+			Stack<Player> cadets = new Stack<Player>(PluginManager.Manager.Server.GetPlayers(Role.NTF_CADET).Where(ply => PlayerIds.Contains(ply.PlayerId)));
 			foreach (Subclass subclass in MTFplus.subclasses)
 			{
-				if (validPlayers.Count <= 0)
+				if (cadets.Count <= 0)
 				{
 					plugin.Debug("Subclass " + subclass.name + " didn't spawn this wave (not enough players)!");
 					continue;
 				}
 				if (subclass.probability * 100 >= MTFplus.random.Next(0, 10000))
 				{
-					Player luckyBoi = validPlayers.Pop();
+					Player luckyBoi = cadets.Pop();
 					plugin.Debug("Spawning " + luckyBoi.Name + " as " + subclass.name);
-					MEC.Timing.RunCoroutine(plugin.SetClass(luckyBoi, subclass));
+					MEC.Timing.RunCoroutine(plugin.SetClass(luckyBoi, subclass), 1);
 				}
 				else
 				{
@@ -58,7 +63,7 @@ namespace MTFplus
 			if (!Directory.Exists(directory))
 			{
 				Directory.CreateDirectory(directory);
-				File.WriteAllText(directory + "\\medic.txt",
+				File.WriteAllText(directory + @"\medic.txt",
 					"Inventory: SENIOR_GUARD_KEYCARD, P90, RADIO, DISARMER, MEDKIT, MEDKIT, MEDKIT, MEDKIT\n" +
 					"Max: 2\n" +
 					"Role: NTF_CADET\n" +
@@ -73,7 +78,7 @@ namespace MTFplus
 			foreach (string filename in filenames)
 			{
 				string name = filename.Remove(0, directory.Length + 1);
-				plugin.Debug("Fetching " + name + "...");
+				plugin.Info("Fetching " + name + "...");
 				string[] lines = FileManager.ReadAllLines(filename).Where(x => !string.IsNullOrWhiteSpace(x)).Where(x => x[0] != '#').ToArray();
 
 				// Default values
@@ -179,6 +184,8 @@ namespace MTFplus
 				}
 				name = name.Substring(0, name.Length - 4);
 				for (int i = 0; i < maxCount; i++) MTFplus.subclasses.Add(new Subclass(name, role, inventory, probability, ammo, broadcast));
+
+				plugin.Info("Success! Loaded " + name + " as a new class");
 			}
 		}
 	}

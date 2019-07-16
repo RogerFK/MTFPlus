@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MEC;
 using Smod2;
 using Smod2.API;
 using Smod2.Attributes;
@@ -41,9 +42,8 @@ namespace MTFplus
 
 		public IEnumerator<float> SetClass(Player player, Subclass subclass)
 		{
-			yield return 0.1f;
-			if(subclass.role != Role.NTF_CADET) player.ChangeRole(subclass.role, false, false, true, true);
-			yield return 0.1f;
+			if (subclass.role != Role.NTF_CADET) player.ChangeRole(subclass.role, false, false, true, true);
+			yield return Timing.WaitForSeconds(0.1f);
 			if (subclass.inventory.Count > 0)
 			{
 				foreach (Smod2.API.Item item in player.GetInventory())
@@ -60,7 +60,7 @@ namespace MTFplus
 
 			 foreach(item thinghey) ItemManager.Items.Handlers[id].Create(ev.Player.GameObject thing's inventory, index)
 			 */
-			for (int i = 0; i<3; i++)
+			for (int i = 0; i < 3; i++)
 			{
 				if (subclass.ammo[i] > 0) player.SetAmmo((AmmoType)i, subclass.ammo[i]);
 			}
