@@ -13,7 +13,7 @@ namespace MTFplus
 	internal class Events : IEventHandlerTeamRespawn, IEventHandlerWaitingForPlayers
 	{
 		private readonly MTFplus plugin;
-		private bool IMbool { get; set; }
+		public static bool IMbool { get; set; }
 		public Events(MTFplus plugin)
 		{
 			this.plugin = plugin;
@@ -55,7 +55,7 @@ namespace MTFplus
 		public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
 		{
 			// Check if ItemManager is installed and enabled on the server
-			IMbool = PluginManager.Manager.EnabledPlugins.Where(plugin => plugin.Details.id == "4aiur.custom.itemmanager").Count() > 1;
+			if (PluginManager.Manager.EnabledPlugins.Where(plugin => plugin.Details.id == "4aiur.custom.itemmanager").Count() > 0) IMbool = true;
 
 			if (!plugin.enable) return;
 			MTFplus.subclasses.Clear();
@@ -86,7 +86,8 @@ namespace MTFplus
 				int maxCount = 1;
 				float probability = 100f;
 
-				List<ItemType> inventory = new List<ItemType>(); //new List<ItemType>() { ItemType.SENIOR_GUARD_KEYCARD, ItemType.P90, ItemType.RADIO, ItemType.DISARMER, ItemType.MEDKIT, ItemType.WEAPON_MANAGER_TABLET };
+				List<ItemType> inventory = new List<ItemType>();
+				Dictionary<int, int> IMinventory = new Dictionary<int, int>();
 				int[] ammo = new int[3] { 0, 0, 0 };
 				string broadcast = string.Empty;
 				foreach(string data in lines)
@@ -94,26 +95,37 @@ namespace MTFplus
 					if (data.StartsWith("Inventory"))
 					{
 						string[] invData = data.Remove(0, 10).Split(',');
-						List<ItemType> inventoryTemp = new List<ItemType>();
-						foreach (string item in invData)
+						//foreach (string item in invData)
+						for(int i = 0; i < invData.Length; i++)
 						{
-							if (!Enum.TryParse(item.Trim(), out ItemType parsedItem))
+							if (IMbool)
 							{
-								plugin.Error("Invalid item \"" + item.Trim() + "\" in " + filename + '!');
+								if (invData[i].StartsWith("IM:"))
+								{
+									if(int.TryParse(invData[i].Substring(3), out int aux))
+									{
+										IMinventory.Add(aux, i);
+										continue;
+									}
+									else
+									{
+										plugin.Error("Invalid CustomItem \"" + invData[i].Trim() + "\" in " + filename + "!");
+										continue;
+									}
+								}
+							}
+							if (!Enum.TryParse(invData[i].Trim(), out ItemType parsedItem))
+							{
+								plugin.Error("Invalid item \"" + invData[i].Trim() + "\" in " + filename + '!');
 							}
 							else
 							{
-								inventoryTemp.Add(parsedItem);
+								inventory.Add(parsedItem);
 							}
 						}
-						if (inventoryTemp.Count == 0)
+						if (inventory.Count == 0 && IMinventory.Count == 0)
 						{
 							plugin.Error("\"" + filename + "\" doesn't have any valid items. Are you sure this is intended?");
-						}
-						else
-						{
-							inventory.Clear(); // I don't trust C#'s garbage collector :smug:
-							inventory = inventoryTemp;
 						}
 					}
 					else if (data.StartsWith("Role"))
@@ -183,7 +195,7 @@ namespace MTFplus
 					}
 				}
 				name = name.Substring(0, name.Length - 4);
-				for (int i = 0; i < maxCount; i++) MTFplus.subclasses.Add(new Subclass(name, role, inventory, probability, ammo, broadcast));
+				for (int i = 0; i < maxCount; i++) MTFplus.subclasses.Add(new Subclass(name, role, inventory, IMinventory, probability, ammo, broadcast));
 
 				plugin.Info("Success! Loaded " + name + " as a new class");
 			}

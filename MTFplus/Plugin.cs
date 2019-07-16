@@ -4,6 +4,7 @@ using Smod2;
 using Smod2.API;
 using Smod2.Attributes;
 using Smod2.Config;
+using UnityEngine;
 
 namespace MTFplus
 {
@@ -55,11 +56,20 @@ namespace MTFplus
 					player.GiveItem(item);
 				}
 			}
-			/*
-			 if the thing has itemmanager items and the thing isn't empty
-
-			 foreach(item thinghey) ItemManager.Items.Handlers[id].Create(ev.Player.GameObject thing's inventory, index)
-			 */
+			if (Events.IMbool)
+			{
+				try
+				{
+					foreach(KeyValuePair<int,int> kvp in subclass.imInv)
+					{
+						ItemManager.Items.Handlers[kvp.Key].Create((player.GetGameObject() as GameObject).GetComponent<Inventory>(), kvp.Value);
+					}
+				}
+				catch (System.Exception e)
+				{
+					Error(e.ToString());
+				}
+			}
 			for (int i = 0; i < 3; i++)
 			{
 				if (subclass.ammo[i] > 0) player.SetAmmo((AmmoType)i, subclass.ammo[i]);
