@@ -58,16 +58,10 @@ namespace MTFplus
 			}
 			if (Events.IMbool)
 			{
-				try
+				foreach(KeyValuePair<int,int> kvp in subclass.imInv)
 				{
-					foreach(KeyValuePair<int,int> kvp in subclass.imInv)
-					{
-						ItemManager.Items.Handlers[kvp.Key].Create((player.GetGameObject() as GameObject).GetComponent<Inventory>(), kvp.Value);
-					}
-				}
-				catch (System.Exception e)
-				{
-					Error(e.ToString());
+					if (ItemManager.Items.Handlers.ContainsKey(kvp.Key)) ItemManager.Items.Handlers[kvp.Key].Create((player.GetGameObject() as GameObject).GetComponent<Inventory>(), kvp.Value);
+					else Error("Custom item (ItemManager) with ID: " + kvp.Key + " doesn't exist/isn't installed!");
 				}
 			}
 			for (int i = 0; i < 3; i++)

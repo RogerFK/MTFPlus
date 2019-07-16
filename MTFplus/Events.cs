@@ -63,7 +63,7 @@ namespace MTFplus
 			if (!Directory.Exists(directory))
 			{
 				Directory.CreateDirectory(directory);
-				File.WriteAllText(directory + @"\medic.txt",
+				File.WriteAllText(directory + @"\\medic.txt",
 					"Inventory: SENIOR_GUARD_KEYCARD, P90, RADIO, DISARMER, MEDKIT, MEDKIT, MEDKIT, MEDKIT\n" +
 					"Max: 2\n" +
 					"Role: NTF_CADET\n" +
@@ -95,28 +95,28 @@ namespace MTFplus
 					if (data.StartsWith("Inventory"))
 					{
 						string[] invData = data.Remove(0, 10).Split(',');
-						//foreach (string item in invData)
 						for(int i = 0; i < invData.Length; i++)
 						{
+							string item = invData[i].Trim();
 							if (IMbool)
 							{
-								if (invData[i].StartsWith("IM:"))
+								if (item.StartsWith("IM:"))
 								{
-									if(int.TryParse(invData[i].Substring(3), out int aux))
+									if(int.TryParse(item.Substring(3), out int aux))
 									{
 										IMinventory.Add(aux, i);
 										continue;
 									}
 									else
 									{
-										plugin.Error("Invalid CustomItem \"" + invData[i].Trim() + "\" in " + filename + "!");
+										plugin.Error("Invalid CustomItem \"" + item + " (" + item.Substring(3) + ")" + "\" in " + filename + "!");
 										continue;
 									}
 								}
 							}
-							if (!Enum.TryParse(invData[i].Trim(), out ItemType parsedItem))
+							if (!Enum.TryParse(item, out ItemType parsedItem))
 							{
-								plugin.Error("Invalid item \"" + invData[i].Trim() + "\" in " + filename + '!');
+								plugin.Error("Invalid item \"" + item + "\" in " + filename + '!');
 							}
 							else
 							{
