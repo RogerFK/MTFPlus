@@ -34,6 +34,7 @@ Probability: 25
 Ammo5: 150
 Ammo7: 300
 Ammo9: 100
+Broadcast: <i><b>You are the <u><color=#60D>Specialist</color></u>. Your task is to eliminate SCP threats.</b></i>
 ```
 
 To add other ItemManager Items, just add `IM:XXX` where XXX is the number [as seen here:](https://github.com/Androxanik/ItemManager/wiki/Reserved-Psuedo-IDs)
