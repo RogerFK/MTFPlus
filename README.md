@@ -23,6 +23,22 @@ Ammo9: 50
 ```
 Those are all the available options, except for "Broadcast". That's used like every other field, for example, `Broadcast: You're a <b>Medic</b>. Go heal your teammates, big boy.`. Below is a table with all the options that let you configure by default some fields you might not use for some classes. If some class is missing, for example, "Ammo5", it will use the default value listed below or one you might configure (as always, in config_gameplay.txt)
 
+### ItemManager Support, and how to use it
+Below is an example of an ItemManager usage for a "Specialist" class that uses the [Tranquilizer Gun](https://github.com/NeonWizard/SCP-TranquilizerGun/):
+`Specialist.txt`
+```yaml
+Inventory: MTF_COMMANDER_KEYCARD, E11_STANDARD_RIFLE, IM:105, MICROHID, RADIO, DISARMER, MEDKIT, WEAPON_MANAGER_TABLET
+Max: 2
+Role: NTF_LIEUTENANT
+Probability: 25
+Ammo5: 150
+Ammo7: 300
+Ammo9: 100
+Broadcast: <i><b>You are the <u><color=#60D>Specialist</color></u>. Your task is to eliminate SCP threats.</b></i>
+```
+
+To add other ItemManager Items, just add `IM:XXX` where XXX is the number [as seen here:](https://github.com/Androxanik/ItemManager/wiki/Reserved-Psuedo-IDs)
+
 # Configs / Default values
 The only config, currently, is `mtfp_enable`. Works as advertised.
 
