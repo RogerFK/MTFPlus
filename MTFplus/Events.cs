@@ -7,6 +7,7 @@ using Smod2.API;
 using Smod2.EventHandlers;
 using Smod2.Events;
 using Smod2.EventSystem.Events;
+using DMP;
 
 namespace MTFplus
 {
@@ -63,7 +64,7 @@ namespace MTFplus
 			if (!Directory.Exists(directory))
 			{
 				Directory.CreateDirectory(directory);
-				File.WriteAllText(directory + @"\\medic.txt",
+				File.WriteAllText(directory + @"/medic.txt",
 					"Inventory: SENIOR_GUARD_KEYCARD, P90, RADIO, DISARMER, MEDKIT, MEDKIT, MEDKIT, MEDKIT\n" +
 					"Max: 2\n" +
 					"Role: NTF_CADET\n" +
@@ -87,7 +88,9 @@ namespace MTFplus
 				float probability = 100f;
 
 				List<ItemType> inventory = new List<ItemType>();
-				Dictionary<int, int> IMinventory = new Dictionary<int, int>();
+				int[] IMinventory = new int[16];
+				for (int i = 0; i < 16; i++) IMinventory[i] = -1;
+
 				int[] ammo = new int[3] { 0, 0, 0 };
 				string broadcast = string.Empty;
 				foreach(string data in lines)
@@ -106,7 +109,7 @@ namespace MTFplus
 									{
 										if (ItemManager.Items.Handlers.ContainsKey(aux))
 										{
-											IMinventory.Add(aux, i);
+											IMinventory[i] = aux;
 											inventory.Add(ItemType.COIN);
 										}
 										else
@@ -130,7 +133,7 @@ namespace MTFplus
 								inventory.Add(parsedItem);
 							}
 						}
-						if (inventory.Count == 0 && IMinventory.Count == 0)
+						if (inventory.Count == 0 && IMinventory.Length == 0)
 						{
 							plugin.Error("\"" + filename + "\" doesn't have any valid items. Are you sure this is intended?");
 						}

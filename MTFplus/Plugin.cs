@@ -38,6 +38,7 @@ namespace MTFplus
 		public override void Register()
 		{
 			this.AddEventHandlers(new Events(this), Smod2.Events.Priority.Low);
+			DamagePercentages.Initialize(this, Smod2.Events.Priority.Low);
 		}
 		public static System.Random random = new System.Random();
 
@@ -59,13 +60,14 @@ namespace MTFplus
 			}
 			if (Events.IMbool)
 			{
-				foreach(KeyValuePair<int,int> kvp in subclass.imInv)
+				for(int i = 0; i < 16; i++)
 				{
-					if (ItemManager.Items.Handlers.ContainsKey(kvp.Key)) ItemManager.Items.Handlers[kvp.Key].Create((player.GetGameObject() as GameObject).GetComponent<Inventory>(), kvp.Value);
+					if (subclass.imInv[i] < 0) continue;
+					if (ItemManager.Items.Handlers.ContainsKey(subclass.imInv[i])) ItemManager.Items.Handlers[subclass.imInv[i]].Create((player.GetGameObject() as GameObject).GetComponent<Inventory>(), i);
 					else
 					{
-						Error("Custom item (ItemManager) with ID: " + kvp.Key + " doesn't exist/isn't installed!");
-						indexesToRemove.Add(kvp.Value); // kvp.Value is the index
+						Error("Custom item (ItemManager) with ID: " + subclass.imInv[i] + " doesn't exist/isn't installed!");
+						indexesToRemove.Add(i); // That's the index inside the inventory, and before a coin was placed there
 					}
 				}
 			}

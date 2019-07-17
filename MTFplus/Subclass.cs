@@ -8,12 +8,12 @@ namespace MTFplus
 		public readonly string name;
 		public readonly Role role;
 		public readonly List<ItemType> inventory;
-		public readonly Dictionary<int, int> imInv;
+		public readonly int[] imInv;
 		public readonly float probability;
 		public readonly int[] ammo;
 		public readonly string broadcast;
 
-		public Subclass(string name, Role role, List<ItemType> inventory, Dictionary<int, int> imInv, float probability, int[] ammo, string broadcast)
+		public Subclass(string name, Role role, List<ItemType> inventory, int[] imInv, float probability, int[] ammo, string broadcast)
 		{
 			this.name = name;
 			this.role = role;

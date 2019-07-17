@@ -62,6 +62,7 @@
     <Reference Include="UnityEngine.Networking, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DamagePercentages.cs" />
     <Compile Include="Subclass.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="Plugin.cs" />
