@@ -90,6 +90,7 @@ namespace MTFplus
 				List<ItemType> inventory = new List<ItemType>();
 				int[] IMinventory = new int[16];
 				for (int i = 0; i < 16; i++) IMinventory[i] = -1;
+				int HP = 0;
 
 				int[] ammo = new int[3] { 0, 0, 0 };
 				string broadcast = string.Empty;
@@ -199,13 +200,25 @@ namespace MTFplus
 					{
 						broadcast = data.Remove(0, 10);
 					}
+					else if (data.StartsWith("HP"))
+					{
+						string HPstr = data.Substring(3).Trim();
+						if (!int.TryParse(HPstr, out int HPaux))
+						{
+							plugin.Error("Invalid Ammo \"" + HPstr + "\" in " + filename + '!');
+						}
+						else
+						{
+							HP = HPaux;
+						}
+					}
 					else
 					{
 						plugin.Error("Unknown line: " + data + " in file " + filename);
 					}
 				}
 				name = name.Substring(0, name.Length - 4);
-				for (int i = 0; i < maxCount; i++) MTFplus.subclasses.Add(new Subclass(name, role, inventory, IMinventory, probability, ammo, broadcast));
+				for (int i = 0; i < maxCount; i++) MTFplus.subclasses.Add(new Subclass(name, role, inventory, IMinventory, probability, ammo, broadcast, HP));
 
 				plugin.Info("Success! Loaded " + name + " as a new class");
 			}

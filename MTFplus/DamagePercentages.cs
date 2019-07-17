@@ -1,7 +1,6 @@
 ﻿// Made by RogerFK. If any bug is to be found, it ought to be reported to that guy
 // Keep in mind this may consume a lot of CPU for each and every player.
 using System.Collections.Generic;
-using System.Linq;
 
 using Smod2;
 using Smod2.API;
@@ -11,7 +10,7 @@ using UnityEngine;
 
 namespace DMP
 {
-	public class DamagePercentages : IEventHandlerWaitingForPlayers, IEventHandlerSetConfig, IEventHandlerPlayerHurt, IEventHandlerMedkitUse
+	public class DamagePercentages : IEventHandlerWaitingForPlayers, IEventHandlerSetConfig, IEventHandlerPlayerHurt, IEventHandlerMedkitUse, IEventHandlerPlayerDie
 	{
 		private static Plugin plugin;
 		private static Dictionary<int, float> multipliers = new Dictionary<int, float>();
@@ -103,6 +102,14 @@ namespace DMP
 			if (multipliers.ContainsKey(ev.Player.PlayerId))
 			{
 				ev.RecoverHealth = (int)(ev.RecoverHealth * multipliers[ev.Player.PlayerId]);
+			}
+		}
+
+		public void OnPlayerDie(PlayerDeathEvent ev)
+		{
+			if (multipliers.ContainsKey(ev.Player.PlayerId))
+			{
+				multipliers.Remove(ev.Player.PlayerId);
 			}
 		}
 	}

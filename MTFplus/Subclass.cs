@@ -12,8 +12,9 @@ namespace MTFplus
 		public readonly float probability;
 		public readonly int[] ammo;
 		public readonly string broadcast;
+		public int maxHP;
 
-		public Subclass(string name, Role role, List<ItemType> inventory, int[] imInv, float probability, int[] ammo, string broadcast)
+		public Subclass(string name, Role role, List<ItemType> inventory, int[] imInv, float probability, int[] ammo, string broadcast, int maxHP)
 		{
 			this.name = name;
 			this.role = role;
@@ -22,6 +23,7 @@ namespace MTFplus
 			this.ammo = ammo;
 			this.broadcast = broadcast;
 			this.imInv = imInv;
+			this.maxHP = maxHP;
 		}
 	}
 }

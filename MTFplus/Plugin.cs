@@ -5,7 +5,7 @@ using Smod2.API;
 using Smod2.Attributes;
 using Smod2.Config;
 using UnityEngine;
-
+using DMP;
 namespace MTFplus
 {
 	[PluginDetails(
@@ -79,6 +79,10 @@ namespace MTFplus
 			foreach (int i in indexesToRemove)
 			{
 				inv[i].Remove();
+			}
+			if(subclass.maxHP > 0)
+			{
+				DamagePercentages.AddOrModify(player.PlayerId, subclass.maxHP, subclass.role);
 			}
 			if (!string.IsNullOrWhiteSpace(subclass.broadcast))
 			{
