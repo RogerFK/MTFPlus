@@ -20,6 +20,7 @@ Probability: 80
 Ammo5: 200
 Ammo7: 70
 Ammo9: 50
+HP: 110
 ```
 Those are all the available options, except for "Broadcast". That's used like every other field, for example, `Broadcast: You're a <b>Medic</b>. Go heal your teammates, big boy.`. Below is a table with all the options that let you configure by default some fields you might not use for some classes. If some class is missing, for example, "Ammo5", it will use the default value listed below or one you might configure (as always, in config_gameplay.txt)
 
@@ -34,11 +35,13 @@ Probability: 25
 Ammo5: 150
 Ammo7: 300
 Ammo9: 100
+HP: 130
 Broadcast: <i><b>You are the <u><color=#60D>Specialist</color></u>. Your task is to eliminate SCP threats.</b></i>
 ```
 
-To add other ItemManager Items, just add `IM:XXX` where XXX is the number [as seen here:](https://github.com/Androxanik/ItemManager/wiki/Reserved-Psuedo-IDs)
+To add other ItemManager Items, just add `IM:XXX` where XXX is the number [as seen here.](https://github.com/Androxanik/ItemManager/wiki/Reserved-Psuedo-IDs)
 
+Additional examples are provided in the [wiki: https://github.com/RogerFK/MTFPlus/wiki](https://github.com/RogerFK/MTFPlus/wiki)
 # Configs / Default values
 The only config, currently, is `mtfp_enable`. Works as advertised.
 
@@ -49,6 +52,7 @@ The only config, currently, is `mtfp_enable`. Works as advertised.
 | Max | 1 | The maximum amount of players that can respawn as this class |
 | Role | NTF_CADET | The role they will be after respawning. Yes, you can randomly respawn a peanut. |
 | Probability | 100 | Works as a percentage. This is NOT the chance of one player to spawn as the class, this is the chance for the class to be spawned (and the player is randomly picked). So if it's too low, it will probably not respawn. |
+| HP | Role's default HP | Max HP you want them to have. More realistic, as they show the player if they actually have 100% and it doesn't go over the bar |
 | Ammo5/Ammo7/Ammo9 | Default ones that probably come from storm37k's Default Ammo plugin | Ammo5 is only used by the MTF E-11 Rifle. MP7 and Logicer use Ammo7.  COM15, P90 and USP use Ammo9. |
 | Broadcast | Empty | Tells the player a broadcast after respawning as that class |
 
