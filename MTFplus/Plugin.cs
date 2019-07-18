@@ -25,6 +25,8 @@ namespace MTFplus
 
 		[ConfigOption]
 		public bool enable = true;
+		[ConfigOption]
+		public string[] aliases = new string[] { "mtfp", "mtfplus", "m+" };
 
 		public override void OnDisable()
 		{
@@ -39,6 +41,7 @@ namespace MTFplus
 		{
 			this.AddEventHandlers(new Events(this), Smod2.Events.Priority.Low);
 			DamagePercentages.Initialize(this, Smod2.Events.Priority.Low);
+			this.AddCommands(aliases, new MTFPlusCommands(this));
 		}
 		public static System.Random random = new System.Random();
 

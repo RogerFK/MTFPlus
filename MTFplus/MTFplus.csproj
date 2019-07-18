@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DamagePercentages.cs" />
+    <Compile Include="MTFPlusCommands.cs" />
     <Compile Include="Subclass.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="Plugin.cs" />
