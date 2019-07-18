@@ -32,7 +32,7 @@ namespace MTFplus
 		private IEnumerator<float> RespawnPlus(IEnumerable<int> PlayerIds)
 		{
 			yield return MEC.Timing.WaitForSeconds(0.3f);
-			Stack<Player> cadets = new Stack<Player>(PluginManager.Manager.Server.GetPlayers(Role.NTF_CADET).Where(ply => PlayerIds.Contains(ply.PlayerId)));
+			Stack<Player> cadets = new Stack<Player>(PluginManager.Manager.Server.GetPlayers(Role.CHAOS_INSURGENCY).Where(ply => PlayerIds.Contains(ply.PlayerId)));
 			foreach (Subclass subclass in MTFplus.subclasses)
 			{
 				if (cadets.Count <= 0)
@@ -205,7 +205,7 @@ namespace MTFplus
 						string HPstr = data.Substring(3).Trim();
 						if (!int.TryParse(HPstr, out int HPaux))
 						{
-							plugin.Error("Invalid Ammo \"" + HPstr + "\" in " + filename + '!');
+							plugin.Error("Invalid HP \"" + HPstr + "\" in " + filename + '!');
 						}
 						else
 						{
