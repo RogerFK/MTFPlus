@@ -198,7 +198,7 @@ namespace MTFplus
 					}
 					else if (data.StartsWith("Broadcast"))
 					{
-						broadcast = data.Remove(0, 10);
+						broadcast = data.Remove(0, 10).Trim();
 					}
 					else if (data.StartsWith("HP"))
 					{
