@@ -7,11 +7,10 @@ using Smod2.API;
 using Smod2.EventHandlers;
 using Smod2.Events;
 using Smod2.EventSystem.Events;
-using DMP;
 
 namespace MTFplus
 {
-	internal class Events : IEventHandlerTeamRespawn, IEventHandlerWaitingForPlayers
+	internal class Events : IEventHandlerTeamRespawn, IEventHandlerWaitingForPlayers, IEventHandlerCallCommand
 	{
 		private readonly MTFplus plugin;
 		public static bool IMbool { get; set; }
@@ -31,24 +30,24 @@ namespace MTFplus
 
 		private IEnumerator<float> RespawnPlus(IEnumerable<int> PlayerIds)
 		{
-			yield return MEC.Timing.WaitForSeconds(0.3f);
+			yield return MEC.Timing.WaitForSeconds(plugin.listDelay);
 			Stack<Player> cadets = new Stack<Player>(PluginManager.Manager.Server.GetPlayers(Role.CHAOS_INSURGENCY).Where(ply => PlayerIds.Contains(ply.PlayerId)));
 			foreach (Subclass subclass in MTFplus.subclasses)
 			{
 				if (cadets.Count <= 0)
 				{
-					plugin.Debug("Subclass " + subclass.name + " didn't spawn this wave (not enough players)!");
+					if(plugin.debug) plugin.Info("Subclass " + subclass.name + " didn't spawn this wave (not enough players)!");
 					continue;
 				}
 				if (subclass.probability * 100 >= MTFplus.random.Next(0, 10000))
 				{
 					Player luckyBoi = cadets.Pop();
-					plugin.Debug("Spawning " + luckyBoi.Name + " as " + subclass.name);
+					if (plugin.debug) plugin.Info("Spawning " + luckyBoi.Name + " as " + subclass.name);
 					MEC.Timing.RunCoroutine(plugin.SetClass(luckyBoi, subclass), 1);
 				}
 				else
 				{
-					plugin.Debug("Bad luck for " + subclass.name + ". Skipping to next subclass");
+					if (plugin.debug) plugin.Info("Bad luck for " + subclass.name + ". Skipping to next subclass");
 				}
 			}
 		}
@@ -73,7 +72,6 @@ namespace MTFplus
 					"Ammo7: 70\n" +
 					"Ammo9: 50");
 				plugin.Info("Created " + directory + ". Fill it with your own MTF classes!\nAdditionally, a template class (Medic) was created with it");
-				return;
 			}
 			string[] filenames = Directory.GetFiles(directory, "*.txt");
 			foreach (string filename in filenames)
@@ -99,7 +97,7 @@ namespace MTFplus
 					if (data.StartsWith("Inventory"))
 					{
 						string[] invData = data.Remove(0, 10).Split(',');
-						for(int i = 0; i < invData.Length; i++)
+						for(int i = 0, j = 0; i < invData.Length; i++, j++)
 						{
 							string item = invData[i].Trim();
 							if (IMbool)
@@ -110,12 +108,13 @@ namespace MTFplus
 									{
 										if (ItemManager.Items.Handlers.ContainsKey(aux))
 										{
-											IMinventory[i] = aux;
+											IMinventory[j] = aux;
 											inventory.Add(ItemType.COIN);
 										}
 										else
 										{
 											plugin.Error("Custom item (ItemManager) with ID: " + aux + " doesn't exist/isn't installed!");
+											j--;
 										}
 									}
 									else
@@ -218,10 +217,51 @@ namespace MTFplus
 					}
 				}
 				name = name.Substring(0, name.Length - 4);
-				for (int i = 0; i < maxCount; i++) MTFplus.subclasses.Add(new Subclass(name, role, inventory, IMinventory, probability, ammo, broadcast, HP));
+				Subclass subclass = new Subclass(name, role, inventory, IMinventory, probability, ammo, broadcast, HP);
+				for (int i = 0; i < maxCount; i++) MTFplus.subclasses.Add(subclass);
 
-				plugin.Info("Success! Loaded " + name + " as a new class");
+				plugin.Info("Success! Loaded " + name + " as a new class" + (plugin.debug ? ":\n" + subclass.ToString() : string.Empty));
+				if (plugin.debug) plugin.Info(subclass.ToString());
 			}
+		}
+		
+		public void OnCallCommand(PlayerCallCommandEvent ev)
+		{
+			if (ev.Command.StartsWith("mtfplist"))
+			{
+				ev.ReturnMessage = "List:";
+				switch (plugin.userConsoleList)
+				{
+					case 1:
+						IEnumerable<Subclass> distinctSubclasses = MTFplus.subclasses.Distinct();
+						string sclistName = string.Empty;
+						int count = distinctSubclasses.Count();
+							for (int i = 0; i < count; i++)
+							{
+								sclistName += distinctSubclasses.ElementAt(i).name + (i != count - 1 ? ", " : string.Empty);
+							}
+						MEC.Timing.RunCoroutine(DelayConsoleMessage(ev.Player, sclistName));
+						return;
+					case 2:
+						IEnumerable<Subclass> distinctSubclasses2 = MTFplus.subclasses.Distinct();
+						string sclistFull = string.Empty;
+						int counterino = distinctSubclasses2.Count();
+						for (int i = 0; i < counterino; i++)
+						{
+							sclistFull += distinctSubclasses2.ElementAt(i).ToString() + Environment.NewLine + "------------" + Environment.NewLine;
+						}
+						MEC.Timing.RunCoroutine(DelayConsoleMessage(ev.Player, sclistFull));
+						return;
+					default:
+						ev.ReturnMessage = "You are not allowed to see the list of MTFPlus classes in this server!";
+						return;
+				}
+			}
+		}
+		public IEnumerator<float> DelayConsoleMessage(Player player, string message)
+		{
+			yield return MEC.Timing.WaitForSeconds(0.5f);
+			player.SendConsoleMessage(message, "white");
 		}
 	}
 }

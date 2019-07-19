@@ -1,7 +1,7 @@
 ﻿// Made by RogerFK. If any bug is to be found, it ought to be reported to that guy
 // Keep in mind this may consume a lot of CPU for each and every player.
 using System.Collections.Generic;
-
+using System.Linq;
 using Smod2;
 using Smod2.API;
 using Smod2.EventHandlers;
@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace DMP
 {
-	public class DamagePercentages : IEventHandlerWaitingForPlayers, IEventHandlerSetConfig, IEventHandlerPlayerHurt, IEventHandlerMedkitUse, IEventHandlerPlayerDie
+	public class DamagePercentages : IEventHandlerWaitingForPlayers, IEventHandlerSetConfig, IEventHandlerPlayerHurt, IEventHandlerMedkitUse, IEventHandlerPlayerDie, IEventHandlerDisconnect
 	{
 		private static Plugin plugin;
 		private static Dictionary<int, float> multipliers = new Dictionary<int, float>();
@@ -110,6 +110,24 @@ namespace DMP
 			if (multipliers.ContainsKey(ev.Player.PlayerId))
 			{
 				multipliers.Remove(ev.Player.PlayerId);
+			}
+		}
+
+		public void OnDisconnect(DisconnectEvent ev)
+		{
+			MEC.Timing.RunCoroutine(CheckDisconnects(), 1);
+		}
+		
+		private IEnumerator<float> CheckDisconnects()
+		{
+			yield return MEC.Timing.WaitForSeconds(3f);
+			List<int> idsToKeep = PluginManager.Manager.Server.GetPlayers()
+										   .Select(player => player.PlayerId)
+										   .Intersect(multipliers.Keys)
+										   .ToList(); // List because according to most people iterating over an IEnumerable constantly is a bad practice and I don't wanna make a binary tree
+			foreach (int id in multipliers.Keys)
+			{
+				if(!idsToKeep.Contains(id)) multipliers.Remove(id);
 			}
 		}
 	}

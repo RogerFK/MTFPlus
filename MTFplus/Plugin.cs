@@ -26,7 +26,17 @@ namespace MTFplus
 		[ConfigOption]
 		public bool enable = true;
 		[ConfigOption]
+		public bool debug = false;
+		[ConfigOption]
 		public string[] aliases = new string[] { "mtfp", "mtfplus", "m+" };
+		[ConfigOption]
+		public string[] ranks = new string[] { "owner", "admin", "e-girl" };
+		[ConfigOption]
+		public int userConsoleList = 2;
+		[ConfigOption]
+		public float listDelay = 0.3f;
+		[ConfigOption]
+		public float delay = 0.1f;
 
 		public override void OnDisable()
 		{
@@ -42,6 +52,7 @@ namespace MTFplus
 			this.AddEventHandlers(new Events(this), Smod2.Events.Priority.Low);
 			DamagePercentages.Initialize(this, Smod2.Events.Priority.Low);
 			this.AddCommands(aliases, new MTFPlusCommands(this));
+			if (debug) Info("MTFPlus loaded in Debug Mode. Sure that the console will get spammed as hell.");
 		}
 		public static System.Random random = new System.Random();
 
@@ -49,7 +60,7 @@ namespace MTFplus
 		{
 			List<int> indexesToRemove = new List<int>();
 			if (subclass.role != Role.NTF_CADET) player.ChangeRole(subclass.role, false, false, true, true);
-			yield return Timing.WaitForSeconds(0.1f);
+			yield return Timing.WaitForSeconds(delay);
 			if (subclass.inventory.Count > 0)
 			{
 				foreach (Smod2.API.Item item in player.GetInventory())
@@ -70,7 +81,7 @@ namespace MTFplus
 					else
 					{
 						Error("Custom item (ItemManager) with ID: " + subclass.imInv[i] + " doesn't exist/isn't installed!");
-						indexesToRemove.Add(i); // That's the index inside the inventory, and before a coin was placed there
+						indexesToRemove.Add(i); // That's the index inside the inventory, and a coin was there as a placeholder
 					}
 				}
 			}

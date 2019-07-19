@@ -3,31 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MEC;
 using Smod2;
+using Smod2.API;
 using Smod2.Commands;
 
 namespace MTFplus
 {
 	class MTFPlusCommands : ICommandHandler
 	{
-		private readonly Plugin plugin;
+		private readonly MTFplus plugin;
 
-		public MTFPlusCommands(Plugin plugin)
+		public MTFPlusCommands(MTFplus plugin)
 		{
 			this.plugin = plugin;
 		}
 
 		public string GetCommandDescription()
 		{
-			return "dis command for mtfplus ploogin, us MTFPlus alon for sumthin";
+			return "dis command for mtfplus ploogin, us MTFPlus alon for sumthin or testy test";
 		}
 
 		public string GetUsage()
 		{
 			return "Usage:" + Environment.NewLine +
-				"MTFPlus LIST [COMPLETE] - Displays the list of Subclasses, with each stat if you add COMPLETE, true or 1 to the end of the command." + Environment.NewLine +
+				"MTFPlus LIST [COMPLETE] - Displays the list of Subclasses, with each stat if you add COMPLETE, true or 1 to the end of the command (works with anything really)." + Environment.NewLine +
 				"MTFPlus DISPLAY <name> - Displays the class with that name" + Environment.NewLine +
-				"MTFPlus SPAWN <name> - Not currently implemented. Implement it yourself and do a pull request.";
+				"MTFPlus SPAWN <player name/player id> <class name> - Spawn a player as a class.";
 		}
 
 		public string[] OnCall(ICommandSender sender, string[] args)
@@ -68,7 +70,37 @@ namespace MTFplus
 						}
 						return new string[] { theOneAndOnly.ToString() };
 					case "SPAWN":
-						return new string[] { "dis not work sry" };
+						if(sender is Player p && !plugin.ranks.Contains(p.GetRankName()))
+						{
+							return new string[] { "Your rank is allowed to use this command" };
+						}
+						if(args.Length < 3)
+						{
+							return new string[] { "Usage: MTFPlus SPAWN <player name/player id> <class name>" };
+						}
+						Player player = null;
+						if (int.TryParse(args[1], out int id))
+						{
+							player = PluginManager.Manager.Server.GetPlayer(id);
+						}
+						else
+						{
+							List<Player> matchingPlayers = PluginManager.Manager.Server.GetPlayers(args[1]);
+							player = matchingPlayers.OrderBy(x => x.Name.Length).FirstOrDefault();
+						}
+						if(player == null)
+						{
+							return new string[] { "Player not found." };
+						}
+						Subclass pickedClass = MTFplus.subclasses.Get(args[2]);
+						if (pickedClass.Equals(SubclassMethods.Empty))
+						{
+							return new string[] { "Subclass not found." };
+						}
+						player.ChangeRole(pickedClass.role, false, true, true, true);
+						Timing.RunCoroutine(plugin.SetClass(player, pickedClass));
+						if (sender is p) plugin.Info(p.Name + " (" + p.SteamId + ") spawned " + player.Name + " as " + pickedClass.name);
+						return new string[] { "Set player " + player.Name + " as " + pickedClass.name };
 				}
 			return new string[] { GetUsage() };
 		}
