@@ -81,7 +81,7 @@ namespace MTFplus
 						Player player = null;
 						if (int.TryParse(args[1], out int id))
 						{
-							player = PluginManager.Manager.Server.GetPlayer(id);
+							try { player = PluginManager.Manager.Server.GetPlayer(id); } catch { return new string[] { "Error with ID (" + args[1] + "). Try again." }; }
 						}
 						else
 						{
@@ -99,7 +99,7 @@ namespace MTFplus
 						}
 						player.ChangeRole(pickedClass.role, false, true, true, true);
 						Timing.RunCoroutine(plugin.SetClass(player, pickedClass));
-						if (sender is p) plugin.Info(p.Name + " (" + p.SteamId + ") spawned " + player.Name + " as " + pickedClass.name);
+						if (sender is Player pl) plugin.Info(pl.Name + " (" + pl.SteamId + ") spawned " + player.Name + " as " + pickedClass.name);
 						return new string[] { "Set player " + player.Name + " as " + pickedClass.name };
 				}
 			return new string[] { GetUsage() };

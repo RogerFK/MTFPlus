@@ -31,7 +31,7 @@ namespace MTFplus
 		private IEnumerator<float> RespawnPlus(IEnumerable<int> PlayerIds)
 		{
 			yield return MEC.Timing.WaitForSeconds(plugin.listDelay);
-			Stack<Player> cadets = new Stack<Player>(PluginManager.Manager.Server.GetPlayers(Role.CHAOS_INSURGENCY).Where(ply => PlayerIds.Contains(ply.PlayerId)));
+			Stack<Player> cadets = new Stack<Player>(PluginManager.Manager.Server.GetPlayers(Role.NTF_CADET).Where(ply => PlayerIds.Contains(ply.PlayerId)));
 			foreach (Subclass subclass in MTFplus.subclasses)
 			{
 				if (cadets.Count <= 0)
