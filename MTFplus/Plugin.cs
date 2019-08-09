@@ -72,19 +72,20 @@ namespace MTFplus
 					player.GiveItem(item);
 				}
 			}
+			#region ItemManager Stuff
 			if (Events.IMbool)
 			{
-				for(int i = 0; i < 16; i++)
+				for (int i = 0; i < 16; i++)
 				{
 					if (subclass.imInv[i] < 0) continue;
-					if (ItemManager.Items.Handlers.ContainsKey(subclass.imInv[i])) ItemManager.Items.Handlers[subclass.imInv[i]].Create((player.GetGameObject() as GameObject).GetComponent<Inventory>(), i);
-					else
+					if (!GrantCustomItem(player, subclass, subclass.imInv[i], i))
 					{
 						Error("Custom item (ItemManager) with ID: " + subclass.imInv[i] + " doesn't exist/isn't installed!");
 						indexesToRemove.Add(i); // That's the index inside the inventory, and a coin was there as a placeholder
 					}
 				}
 			}
+			#endregion
 			for (int i = 0; i < 3; i++)
 			{
 				if (subclass.ammo[i] > 0) player.SetAmmo((AmmoType)i, subclass.ammo[i]);
@@ -102,6 +103,19 @@ namespace MTFplus
 			{
 				player.PersonalBroadcast(5, subclass.broadcast, false);
 			}
+		}
+		public static bool ItemManagerExists(int id)
+		{
+			return ItemManager.Items.Handlers.ContainsKey(id);
+		}
+		private bool GrantCustomItem(Player player, Subclass subclass, int id, int index)
+		{
+			if (ItemManager.Items.Handlers.ContainsKey(id))
+			{
+				ItemManager.Items.Handlers[subclass.imInv[index]].Create((player.GetGameObject() as GameObject).GetComponent<Inventory>(), index);
+				return true;
+			}
+			return false;
 		}
 	}
 }

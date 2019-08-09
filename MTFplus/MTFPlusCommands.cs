@@ -81,7 +81,7 @@ namespace MTFplus
 						Player player = null;
 						if (int.TryParse(args[1], out int id))
 						{
-							try { player = PluginManager.Manager.Server.GetPlayer(id); } catch { return new string[] { "Error with ID (" + args[1] + "). Try again." }; }
+							try { player = PluginManager.Manager.Server.GetPlayer(id); } catch { return new string[] { "Error with ID (" + args[1] + "). Try again or use the name." }; }
 						}
 						else
 						{

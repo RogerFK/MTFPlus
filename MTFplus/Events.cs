@@ -100,21 +100,29 @@ namespace MTFplus
 						for(int i = 0, j = 0; i < invData.Length; i++, j++)
 						{
 							string item = invData[i].Trim();
+							#region ItemManager Stuff
 							if (IMbool)
 							{
 								if (item.StartsWith("IM:"))
 								{
-									if(int.TryParse(item.Substring(3), out int aux))
+									if (int.TryParse(item.Substring(3), out int aux))
 									{
-										if (ItemManager.Items.Handlers.ContainsKey(aux))
+										try
 										{
-											IMinventory[j] = aux;
-											inventory.Add(ItemType.COIN);
+											if (MTFplus.ItemManagerExists(aux))
+											{
+												IMinventory[j] = aux;
+												inventory.Add(ItemType.COIN);
+											}
+											else
+											{
+												plugin.Error("Custom item (ItemManager) with ID: " + aux + " doesn't exist/isn't installed!");
+												j--;
+											}
 										}
-										else
+										catch (Exception e)
 										{
-											plugin.Error("Custom item (ItemManager) with ID: " + aux + " doesn't exist/isn't installed!");
-											j--;
+											plugin.Error("ItemManager not found or threw an error!\n" + e);
 										}
 									}
 									else
@@ -123,7 +131,8 @@ namespace MTFplus
 									}
 									continue;
 								}
-							}
+							} 
+							#endregion
 							if (!Enum.TryParse(item, out ItemType parsedItem))
 							{
 								plugin.Error("Invalid item \"" + item + "\" in " + filename + '!');
