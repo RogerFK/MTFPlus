@@ -72,6 +72,7 @@ namespace MTFplus
 					player.GiveItem(item);
 				}
 			}
+			// /* Take out the two // before this to remove the ItemManager stuff
 			#region ItemManager Stuff
 			if (Events.IMbool)
 			{
@@ -86,6 +87,7 @@ namespace MTFplus
 				}
 			}
 			#endregion
+			// */
 			for (int i = 0; i < 3; i++)
 			{
 				if (subclass.ammo[i] > 0) player.SetAmmo((AmmoType)i, subclass.ammo[i]);

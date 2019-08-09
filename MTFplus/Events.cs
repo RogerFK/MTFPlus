@@ -100,6 +100,7 @@ namespace MTFplus
 						for(int i = 0, j = 0; i < invData.Length; i++, j++)
 						{
 							string item = invData[i].Trim();
+							// /* Take out the two // before this to remove the ItemManager stuff
 							#region ItemManager Stuff
 							if (IMbool)
 							{
@@ -133,6 +134,7 @@ namespace MTFplus
 								}
 							} 
 							#endregion
+							// */
 							if (!Enum.TryParse(item, out ItemType parsedItem))
 							{
 								plugin.Error("Invalid item \"" + item + "\" in " + filename + '!');
