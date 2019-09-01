@@ -1,6 +1,9 @@
 # MTFPlus
 A plugin that adds new subclasses to NTF Cadets.
 
+# Discord
+## Get awesomely pinged when I release something, share your own classes, etc. here: https://discord.gg/xU8YK8C
+
 # Usage
 
 Place your classes in a `.txt` file **(A MUST)** into the `MTFplus` folder located at the `AppData` folder (windows), `.config` folder (Linux) or in a per-server basis (that is, in your server folder) if you're using the non-global config, if you're using the global one I'm actually unsure about where the files go, so check the console (probably `.config/AppData`).
