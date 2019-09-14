@@ -6,6 +6,7 @@ using Smod2.Attributes;
 using Smod2.Config;
 using UnityEngine;
 using DMP;
+
 namespace MTFplus
 {
 	[PluginDetails(
@@ -50,9 +51,9 @@ namespace MTFplus
 		public override void Register()
 		{
 			this.AddEventHandlers(new Events(this), Smod2.Events.Priority.Low);
-			DamagePercentages.Initialize(this, Smod2.Events.Priority.Low);
+			DamagePercentages.Initialize(this, Smod2.Events.Priority.Highest);
 			this.AddCommands(aliases, new MTFPlusCommands(this));
-			if (debug) Info("MTFPlus loaded in Debug Mode. Sure that the console will get spammed as hell.");
+			if (debug) Info("MTFPlus loaded in Debug Mode. The console will get spammed as hell.");
 		}
 		public static System.Random random = new System.Random();
 
@@ -72,7 +73,7 @@ namespace MTFplus
 					player.GiveItem(item);
 				}
 			}
-			// /* Take out the two // before this to remove the ItemManager stuff
+			// /* Take out the // before this to remove the ItemManager stuff
 			#region ItemManager Stuff
 			if (Events.IMbool)
 			{
@@ -106,6 +107,7 @@ namespace MTFplus
 				player.PersonalBroadcast(5, subclass.broadcast, false);
 			}
 		}
+        // /*
 		public static bool ItemManagerExists(int id)
 		{
 			return ItemManager.Items.Handlers.ContainsKey(id);
@@ -119,5 +121,6 @@ namespace MTFplus
 			}
 			return false;
 		}
+        // */
 	}
 }
