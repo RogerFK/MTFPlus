@@ -19,24 +19,28 @@ namespace MTFplus
 
         public string GetCommandDescription()
         {
-            return "dis command for mtfplus ploogin, us MTFPlus alon for sumthin or testy test";
+            string aliases = string.Join("/", plugin.aliases);
+
+            return $"See usage by typing {aliases}.";
         }
 
         public string GetUsage()
         {
-            string commands = string.Join("/", plugin.aliases);
+            string aliases = string.Join("/", plugin.aliases);
 
             return "Usage:" + Environment.NewLine +
-                $"{commands} LIST [COMPLETE] - Displays the list of Subclasses, with each stat if you add COMPLETE, true or 1 to the end of the command (works with anything really)." + Environment.NewLine +
-                $"{commands} DISPLAY <name> - Displays the class with that name" + Environment.NewLine +
-                $"{commands} SPAWN <player name/player id> <class name> - Spawn a player as a class.";
+                $"{aliases} LIST [COMPLETE] - Displays the list of Subclasses, with each stat if you add COMPLETE, true or 1 to the end of the command (works with anything really)." + Environment.NewLine +
+                $"{aliases} DISPLAY <name> - Displays the class with that name" + Environment.NewLine +
+                $"{aliases} SPAWN <player name/player id> <class name> - Spawn a player as a class.";
         }
 
         public string[] OnCall(ICommandSender sender, string[] args)
         {
             if (args.Length < 1) return new string[] { GetUsage() };
-            else switch (args[0].ToUpper())
+            else switch (args[0].ToUpperInvariant())
                 {
+                    case "RELOAD":
+                        return new string[] { $"Reloaded {Methods.LoadClasses()} classes." };
                     case "LIST":
                         int i, count;
                         IEnumerable<Subclass> distinctSubclasses = MTFplus.subclasses.Distinct();
@@ -98,7 +102,7 @@ namespace MTFplus
                             return new string[] { "Subclass not found." };
                         }
                         player.ChangeRole(pickedClass.role, false, true, true, true);
-                        Timing.RunCoroutine(plugin.SetClass(player, pickedClass));
+                        Timing.RunCoroutine(player.SetClass(pickedClass));
                         if (sender is Player pl) plugin.Info(pl.Name + " (" + pl.SteamId + ") spawned " + player.Name + " as " + pickedClass.name);
                         return new string[] { "Set player " + player.Name + " as " + pickedClass.name };
                 }

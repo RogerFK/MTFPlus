@@ -42,28 +42,25 @@ namespace MTFplus
 
         public override string ToString()
         {
-            return this.name + ":\n"
-                + "Role: " + this.role + Environment.NewLine
-                + "Inventory: " + this.ParseItems(this.inventory)
-                + "Probability: " + this.probability + Environment.NewLine
-                + "Ammo5: " + this.ammo[0] + Environment.NewLine
-                + "Ammo7: " + this.ammo[1] + Environment.NewLine
-                + "Ammo9: " + this.ammo[2] + Environment.NewLine
-                + "HP: " + this.maxHP + Environment.NewLine
-                + "Broadcast: " + (string.IsNullOrWhiteSpace(this.broadcast) ? "Empty." : this.broadcast);
+            return $"= {this.name} ={Environment.NewLine}=========={Environment.NewLine}"
+                + $"- Role: {this.role}{Environment.NewLine}"
+                + $"- Inventory: {this.ParseItems(this.inventory)}" 
+                + $"- Probability: {this.probability}{Environment.NewLine}"
+                + $"- Ammo5: {(this.ammo[0] > 0 ? this.ammo[0].ToString() : "default")}{Environment.NewLine}"
+                + $"- Ammo7: {(this.ammo[1] > 0 ? this.ammo[1].ToString() : "default")}{Environment.NewLine}"
+                + $"- Ammo9: {(this.ammo[2] > 0 ? this.ammo[2].ToString() : "default")}{Environment.NewLine}"
+                + $"- HP: {(this.maxHP != 0 ? this.maxHP.ToString() : "default")}{Environment.NewLine}"
+                + $"- Broadcast: {(string.IsNullOrWhiteSpace(this.broadcast) ? "Empty." : this.broadcast)}";
         }
         private string ParseItems(List<ItemType> items)
         {
             int i, j, size;
             string parsedValue = string.Empty;
             Dictionary<int, int> IMpositions = new Dictionary<int, int>(16);
-            if (Events.IMbool)
+            for (i = 0; i < 16; i++)
             {
-                for (i = 0; i < 16; i++)
-                {
-                    if (this.imInv[i] < 0) continue;
-                    IMpositions.Add(i, this.imInv[i]);
-                }
+                if (this.imInv[i] < 0) continue;
+                IMpositions.Add(i, this.imInv[i]);
             }
             size = items.Count + IMpositions.Count;
             for (i = 0, j = 0; i < size; i++)
