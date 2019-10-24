@@ -20,8 +20,8 @@ namespace MTFplus
         {
             if (!plugin.enable) return;
 
-            //if (ev.SpawnChaos || ev.PlayerList.Count == 0) return;
-            plugin.Info("DetectTeamRespawn");
+            if (ev.SpawnChaos || ev.PlayerList.Count == 0) return;
+
             MTFplus.subclasses.OrderBy(x => MTFplus.random.Next());
             MEC.Timing.RunCoroutine(RespawnPlus(ev.PlayerList), MEC.Segment.FixedUpdate);
         }
