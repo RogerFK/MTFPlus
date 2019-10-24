@@ -66,6 +66,7 @@ Use the aliases (`MTFPlus`, `m+`, `mtfp`, or whatever the owner/admins told you)
 
 | Command | Arguments | Description |
 |---------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| RELOAD | None. | Reloads the list of MTF+ classes. |
 | LIST | [ANYTHING] | Displays the subclasses name if LIST is typed alone, displays every subclass with their inventory if any other argument (1, true, full, complete...) is typed (example: m+ list ahfhahf) |
 | DISPLAY | <subclass' name> | Display the complete info about a subclass based on its name |
 | SPAWN | <player id/player's name> <subclass' name> | Spawns a player as a subclass. Useful for testing/events. |
