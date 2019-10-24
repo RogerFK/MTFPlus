@@ -29,33 +29,38 @@ namespace MTFplus
         private IEnumerator<float> RespawnPlus(List<Player> Players)
         {
             yield return MEC.Timing.WaitForSeconds(plugin.listDelay);
+            Player luckyBoi;
             int curr = MTFplus.random.Next(0, Players.Count), timesIterated = 0;
             
-            Player luckyBoi = Players[curr];
             foreach (Subclass subclass in MTFplus.subclasses)
             {
                 if (timesIterated == Players.Count)
                 {
-                    if (plugin.debug) plugin.Info("One instance of subclass " + subclass.name + " didn't spawn this wave (not enough players)!");
+                    if (plugin.debug) plugin.Info($"One instance of subclass {subclass.name} didn't spawn this wave (not enough players)!");
                     else yield break;
                     continue;
                 }
                 if (subclass.probability * 100 >= MTFplus.random.Next(0, 10000))
                 {
-                    if (plugin.debug) plugin.Info("Spawning " + luckyBoi.Name + " as " + subclass.name);
-                    MEC.Timing.RunCoroutine(luckyBoi.SetClass(subclass), 1);
                     do
                     {
-                        curr = (curr + 1) % Players.Count;
                         luckyBoi = Players[curr];
                         timesIterated++;
+                        curr = (curr + 1) % Players.Count;
                     } while (((GameObject)luckyBoi.GetGameObject()).GetComponent<CharacterClassManager>()
                     .curClass != 13 // NTF Cadet number
-                    && timesIterated == Players.Count);
+                    && timesIterated < Players.Count);
+
+                    if (((GameObject)luckyBoi.GetGameObject()).GetComponent<CharacterClassManager>().curClass == 13)
+                    {
+                        if (plugin.debug) plugin.Info($"Spawning {luckyBoi.Name} as {subclass.name}");
+
+                        MEC.Timing.RunCoroutine(luckyBoi.SetClass(subclass), 1);
+                    }
                 }
                 else
                 {
-                    if (plugin.debug) plugin.Info("Bad luck for one instance of " + subclass.name + ". Skipping to next subclass/another instance of this class.");
+                    if (plugin.debug) plugin.Info($"Bad luck for one instance of {subclass.name}. Skipping to next subclass/another instance of this class.");
                 }
             }
         }
