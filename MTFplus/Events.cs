@@ -20,8 +20,10 @@ namespace MTFplus
         {
             if (!plugin.enable) return;
 
+            // Skip the algorithm
             if (ev.SpawnChaos || ev.PlayerList.Count == 0) return;
 
+            // This should shuffle
             MTFplus.subclasses.OrderBy(x => MTFplus.random.Next());
             MEC.Timing.RunCoroutine(RespawnPlus(ev.PlayerList), MEC.Segment.FixedUpdate);
         }
@@ -29,6 +31,7 @@ namespace MTFplus
         private IEnumerator<float> RespawnPlus(List<Player> Players)
         {
             yield return MEC.Timing.WaitForSeconds(plugin.listDelay);
+
             Player luckyBoi;
             int curr = MTFplus.random.Next(0, Players.Count), timesIterated = 0;
             
@@ -37,11 +40,12 @@ namespace MTFplus
                 if (timesIterated == Players.Count)
                 {
                     if (plugin.debug) plugin.Info($"One instance of subclass {subclass.name} didn't spawn this wave (not enough players)!");
-                    else yield break;
+                    else yield break; // Yield break ends the execution if the config "mtfp_debug" is set to false (by default)
                     continue;
                 }
                 if (subclass.probability * 100 >= MTFplus.random.Next(0, 10000))
                 {
+                    // Evaluate players until a NTF Cadet is found
                     do
                     {
                         luckyBoi = Players[curr];
@@ -51,11 +55,12 @@ namespace MTFplus
                     .curClass != 13 // NTF Cadet number
                     && timesIterated < Players.Count);
 
+                    // Skip the "SetClass" method if a given luckyBoi isn't a NTF Cadet in case the loop above didn't find one
                     if (((GameObject)luckyBoi.GetGameObject()).GetComponent<CharacterClassManager>().curClass == 13)
                     {
                         if (plugin.debug) plugin.Info($"Spawning {luckyBoi.Name} as {subclass.name}");
 
-                        MEC.Timing.RunCoroutine(luckyBoi.SetClass(subclass), 1);
+                        luckyBoi.SetClass(subclass);
                     }
                 }
                 else

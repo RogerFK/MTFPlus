@@ -102,7 +102,7 @@ namespace MTFplus
                             return new string[] { "Subclass not found." };
                         }
                         player.ChangeRole(pickedClass.role, false, true, true, true);
-                        Timing.RunCoroutine(player.SetClass(pickedClass));
+                        player.SetClass(pickedClass);
                         if (sender is Player pl) plugin.Info(pl.Name + " (" + pl.SteamId + ") spawned " + player.Name + " as " + pickedClass.name);
                         return new string[] { "Set player " + player.Name + " as " + pickedClass.name };
                 }

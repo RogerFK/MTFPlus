@@ -11,7 +11,11 @@ namespace MTFplus
 {
     internal static class Methods
     {
-        public static IEnumerator<float> SetClass(this Player player, Subclass subclass)
+        public static void SetClass(this Player player, Subclass subclass)
+        {
+            Timing.RunCoroutine(_SetClass(player, subclass), Segment.FixedUpdate);
+        }
+        public static IEnumerator<float> _SetClass(Player player, Subclass subclass)
         {
             List<int> indexesToRemove = new List<int>();
             if (subclass.role != Role.NTF_CADET) player.ChangeRole(subclass.role, false, false, true, true);
