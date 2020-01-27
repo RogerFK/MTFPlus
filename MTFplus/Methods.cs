@@ -31,8 +31,7 @@ namespace MTFplus
                     player.GiveItem(item);
                 }
             }
-            // /* Take out the // before this to remove the ItemManager stuff
-            #region ItemManager Stuff
+            #if ItemManager
             for (int i = 0; i < 16; i++)
             {
                 if (subclass.imInv[i] < 0) continue;
@@ -42,8 +41,7 @@ namespace MTFplus
                     indexesToRemove.Add(i); // That's the index inside the inventory, and a coin was there as a placeholder
                 }
             }
-            #endregion
-            // */
+            #endif
             for (int i = 0; i < 3; i++)
             {
                 if (subclass.ammo[i] > 0) player.SetAmmo((AmmoType)i, subclass.ammo[i]);
@@ -109,8 +107,7 @@ namespace MTFplus
                         for (int i = 0, j = 0; i < invData.Length; i++, j++)
                         {
                             string item = invData[i].Trim();
-                            // /* Take out the two // before this to remove the ItemManager stuff
-                            #region ItemManager Stuff
+                            #if ItemManager
                             if (item.StartsWith("IM:"))
                             {
                                 if (int.TryParse(item.Substring(3), out int aux))
@@ -139,8 +136,7 @@ namespace MTFplus
                                 }
                                 continue;
                             }
-                            #endregion
-                            // */
+                            #endif
                             if (!Enum.TryParse(item, out ItemType parsedItem))
                             {
                                 if (verbose) plugin.Error("Invalid item \"" + item + "\" in " + filename + '!');
@@ -247,7 +243,7 @@ namespace MTFplus
 
             return SuccessfulCount;
         }
-        // /*
+        #if ItemManager
         public static bool ItemManagerExists(int id)
         {
             return ItemManager.Items.Handlers.ContainsKey(id);
@@ -261,7 +257,7 @@ namespace MTFplus
             }
             return false;
         }
-        // */
+        #endif
 
         internal static void DelayListMessage(this Player player)
         {

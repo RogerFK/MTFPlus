@@ -35,9 +35,7 @@ namespace MTFplus
 
         public override int GetHashCode()
         {
-            var hashCode = -265901448;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(name);
-            return hashCode;
+            return EqualityComparer<string>.Default.GetHashCode(name);
         }
 
         public override string ToString()
