@@ -9,6 +9,8 @@ namespace MTFplus
 {
     internal static class Methods
     {
+        public static void RAMessage(this CommandSender sender, string message, bool success = true) =>
+            sender.RaReply("MTF Plus#" + message, success, true, string.Empty);
         public static void SetClass(this ReferenceHub player, Subclass subclass)
         {
             Timing.RunCoroutine(_SetClass(player, subclass), Segment.FixedUpdate);
@@ -267,11 +269,10 @@ namespace MTFplus
 
         internal static void DelayListMessage(this ReferenceHub player)
         {
-            MEC.Timing.RunCoroutine(ListCoroutine(player), Segment.Update);
+            MEC.Timing.RunCoroutine(FetchList(player, false), Segment.Update);
         }
-        private static IEnumerator<float> ListCoroutine(ReferenceHub player)
+        internal static IEnumerator<float> FetchList(object player, bool remoteAdmin = true)
         {
-            yield return MEC.Timing.WaitForOneFrame;
             string message = string.Empty;
 
             int count = MTFplus.disctinctSubclasses.Count;
@@ -282,9 +283,9 @@ namespace MTFplus
                     message += MTFplus.disctinctSubclasses[i].name + (i != count - 1 ? ", " : string.Empty);
                 }
             }
-            else
+            else if (MTFplus.computedSubclasses == string.Empty)
             {
-                // This is a very CPU intensive in term of frame times task.
+                // This is a very CPU intensive to be computed in one frame.
                 // This should never be a big deal if your server has a good
                 // enough CPU, but we can't assume no-one will ever run it in
                 // a Pentium from 2003.
@@ -314,6 +315,8 @@ namespace MTFplus
                         computedInOneFrame = 0;
                     }
                 }
+                // Save the computed message in case someone might want to use it later
+                MTFplus.computedSubclasses = message;
 
                 // Nonetheless, please note:
 
@@ -327,7 +330,16 @@ namespace MTFplus
                 // logic of Unity, and I don't know if the overhead of fetching
                 // Time.time is worth to optimize it to its last bit.
             }
-            player.GetComponent<GameConsoleTransmission>().SendToClient(player.scp079PlayerScript.connectionToClient, message, "white");
+            
+            if (remoteAdmin && player is CommandSender cs)
+            {
+                cs.RAMessage("Complete list:\n" + MTFplus.computedSubclasses, true);
+            }
+            else if (player is ReferenceHub rh)
+            {
+                rh.GetComponent<GameConsoleTransmission>().SendToClient(rh.scp079PlayerScript.connectionToClient, "Complete list:\n" + message, "white");
+            }
+            yield break;
         }
     }
 }

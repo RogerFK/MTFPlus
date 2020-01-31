@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace MTFplus
 {
-    internal class MTFPEvents
+    public class MTFPEvents
     {
         private readonly MTFplus plugin;
         public MTFPEvents(MTFplus plugin)
