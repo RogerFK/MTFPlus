@@ -1,6 +1,4 @@
-﻿using DMP;
-using MEC;
-using Smod2.API;
+﻿using MEC;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,24 +9,22 @@ namespace MTFplus
 {
     internal static class Methods
     {
-        public static void SetClass(this Player player, Subclass subclass)
+        public static void SetClass(this ReferenceHub player, Subclass subclass)
         {
             Timing.RunCoroutine(_SetClass(player, subclass), Segment.FixedUpdate);
         }
-        public static IEnumerator<float> _SetClass(Player player, Subclass subclass)
+        public static IEnumerator<float> _SetClass(ReferenceHub player, Subclass subclass)
         {
             List<int> indexesToRemove = new List<int>();
-            if (subclass.role != Role.NTF_CADET) player.ChangeRole(subclass.role, false, false, true, true);
-            yield return Timing.WaitForSeconds(MTFplus.Instance.delay);
+            if (subclass.role != RoleType.NtfCadet) player.characterClassManager.SetPlayersClass(subclass.role, player.gameObject);
+            yield return Timing.WaitForSeconds(MTFplus.Instance.Configs.delay);
             if (subclass.inventory.Count > 0)
             {
-                foreach (Smod2.API.Item item in player.GetInventory())
-                {
-                    item.Remove();
-                }
+                player.inventory.items.Clear();
+
                 foreach (ItemType item in subclass.inventory)
                 {
-                    player.GiveItem(item);
+                    player.inventory.AddNewItem(item);
                 }
             }
             #if ItemManager
@@ -44,20 +40,29 @@ namespace MTFplus
             #endif
             for (int i = 0; i < 3; i++)
             {
-                if (subclass.ammo[i] > 0) player.SetAmmo((AmmoType)i, subclass.ammo[i]);
+                player.ammoBox.Networkamount = string.Concat(new string[]
+                    {
+                        subclass.ammo[0].ToString(),
+                        ":",
+                        subclass.ammo[1].ToString(),
+                        ":",
+                        subclass.ammo[2].ToString()
+                    });
             }
+            #if ItemManager // Not even updated lol
             List<Smod2.API.Item> inv = player.GetInventory();
             foreach (int i in indexesToRemove)
             {
                 inv[i].Remove();
             }
+            #endif
             if (subclass.maxHP > 0)
             {
-                DamagePercentages.AddOrModify(player.PlayerId, subclass.maxHP, subclass.role);
+                player.playerStats.maxHP = subclass.maxHP;
             }
             if (!string.IsNullOrWhiteSpace(subclass.broadcast))
             {
-                player.PersonalBroadcast(5, subclass.broadcast, false);
+                player.GetComponent<Broadcast>().TargetAddElement(player.characterClassManager.connectionToClient, subclass.broadcast, 5u, false);
             }
         }
         public static int LoadClasses(MTFplus plugin = null)
@@ -78,17 +83,17 @@ namespace MTFplus
                     "Ammo5: 200\n" +
                     "Ammo7: 70\n" +
                     "Ammo9: 50");
-                if (verbose) plugin.Info("Created " + directory + ". Fill it with your own MTF classes!\nAdditionally, a template class (Medic) was created with it");
+                if (verbose) plugin.DebugMessage("Created " + directory + ". Fill it with your own MTF classes!\nAdditionally, a template class (Medic) was created with it");
             }
             string[] filenames = Directory.GetFiles(directory, "*.txt");
             foreach (string filename in filenames)
             {
                 string name = filename.Remove(0, directory.Length + 1);
-                if (verbose) plugin.Info("Fetching " + name + "...");
+                if (verbose) plugin.DebugMessage("Fetching " + name + "...");
                 string[] lines = FileManager.ReadAllLines(filename).Where(x => !string.IsNullOrWhiteSpace(x)).Where(x => x[0] != '#').ToArray();
 
                 // Default values
-                Role role = Role.NTF_CADET;
+                RoleType role = RoleType.NtfCadet;
                 int maxCount = 1;
                 float probability = 100f;
 
@@ -139,7 +144,7 @@ namespace MTFplus
                             #endif
                             if (!Enum.TryParse(item, out ItemType parsedItem))
                             {
-                                if (verbose) plugin.Error("Invalid item \"" + item + "\" in " + filename + '!');
+                                if (verbose) plugin.DebugMessage("[ERROR] Invalid item \"" + item + "\" in " + filename + '!');
                             }
                             else
                             {
@@ -148,15 +153,15 @@ namespace MTFplus
                         }
                         if (inventory.Count == 0 && IMinventory.Length == 0)
                         {
-                            if (verbose) plugin.Error("\"" + filename + "\" doesn't have any valid items. Are you sure this is intended?");
+                            if (verbose) plugin.DebugMessage("[WARNING] \"" + filename + "\" doesn't have any valid items. Are you sure this is intended?");
                         }
                     }
                     else if (data.StartsWith("Role"))
                     {
                         string roleData = data.Remove(0, 5).Trim();
-                        if (!Enum.TryParse(roleData, out Role roleParsed))
+                        if (!Enum.TryParse(roleData, out RoleType roleParsed))
                         {
-                            if (verbose) plugin.Error("Invalid role \"" + roleData + "\" in " + filename + '!');
+                            if (verbose) plugin.DebugMessage("[ERROR] Invalid role \"" + roleData + "\" in " + filename + '!');
                         }
                         else
                         {
@@ -168,7 +173,7 @@ namespace MTFplus
                         string maxData = data.Remove(0, 4).Trim();
                         if (!int.TryParse(maxData, out int probablyMaxCount))
                         {
-                            if (verbose) plugin.Error("Invalid maximum count \"" + maxData + "\" in " + filename + '!');
+                            if (verbose) plugin.DebugMessage("[ERROR] Invalid maximum count \"" + maxData + "\" in " + filename + '!');
                         }
                         else
                         {
@@ -180,7 +185,7 @@ namespace MTFplus
                         string prob = data.Remove(0, 12).Trim();
                         if (!float.TryParse(prob, out float probabilitey))
                         {
-                            if (verbose) plugin.Error("Invalid probability \"" + prob + "\" in " + filename + '!');
+                            if (verbose) plugin.DebugMessage("[ERROR] Invalid probability \"" + prob + "\" in " + filename + '!');
                         }
                         else
                         {
@@ -191,17 +196,17 @@ namespace MTFplus
                     {
                         if (!int.TryParse(data[4].ToString(), out int ammoTyperino))
                         {
-                            if (verbose) plugin.Error("\"Ammo\" \"" + data + "\" unrecognized in " + filename + '!');
+                            if (verbose) plugin.DebugMessage("[ERROR] \"Ammo\" \"" + data + "\" unrecognized in " + filename + '!');
                         }
                         int ammoType = (ammoTyperino - 5) / 2;
                         if (ammoType < 0 || ammoType > 2)
                         {
-                            if (verbose) plugin.Error(data[4].ToString() + " is not a type of ammo! (in line: " + data + " in " + filename);
+                            if (verbose) plugin.DebugMessage("[ERROR] " + data[4].ToString() + " is not a type of ammo! (in line: " + data + " in " + filename);
                         }
                         string ammoStr = data.Remove(0, 6).Trim();
                         if (!int.TryParse(ammoStr, out int parsedAmmo))
                         {
-                            if (verbose) plugin.Error("Invalid Ammo \"" + ammoStr + "\" in " + filename + '!');
+                            if (verbose) plugin.DebugMessage("[ERROR] Invalid Ammo \"" + ammoStr + "\" in " + filename + '!');
                         }
                         else
                         {
@@ -217,7 +222,7 @@ namespace MTFplus
                         string HPstr = data.Substring(3).Trim();
                         if (!int.TryParse(HPstr, out int HPaux))
                         {
-                            if (verbose) plugin.Error("Invalid HP \"" + HPstr + "\" in " + filename + '!');
+                            if (verbose) plugin.DebugMessage("[ERROR] Invalid HP \"" + HPstr + "\" in " + filename + '!');
                         }
                         else
                         {
@@ -226,17 +231,18 @@ namespace MTFplus
                     }
                     else
                     {
-                        if (verbose) plugin.Error("Unknown line: " + data + " in file " + filename);
+                        if (verbose) plugin.DebugMessage("[ERROR] Unknown line: " + data + " in file " + filename);
                     }
                 }
                 name = name.Substring(0, name.Length - 4);
                 Subclass subclass = new Subclass(name, role, inventory, IMinventory, probability, ammo, broadcast, HP);
                 for (int i = 0; i < maxCount; i++) MTFplus.subclasses.Add(subclass);
+                MTFplus.disctinctSubclasses.Add(subclass);
 
                 if (verbose)
                 {
-                    plugin.Info("Success! Loaded " + name + " as a new class" + (plugin.debug ? ":\n" + subclass.ToString() : string.Empty));
-                    if (plugin.debug) plugin.Info(subclass.ToString());
+                    plugin.DebugMessage("[INFO] Success! Loaded " + name + " as a new class" + (plugin.Configs.debug ? ":\n" + subclass.ToString() : string.Empty));
+                    if (plugin.Configs.debug) plugin.DebugMessage(subclass.ToString());
                 }
                 SuccessfulCount++;
             }
@@ -259,31 +265,69 @@ namespace MTFplus
         }
         #endif
 
-        internal static void DelayListMessage(this Player player)
+        internal static void DelayListMessage(this ReferenceHub player)
         {
-            MEC.Timing.RunCoroutine(ListCoroutine(player), Segment.FixedUpdate);
+            MEC.Timing.RunCoroutine(ListCoroutine(player), Segment.Update);
         }
-        private static IEnumerator<float> ListCoroutine(Player player)
+        private static IEnumerator<float> ListCoroutine(ReferenceHub player)
         {
-            yield return MEC.Timing.WaitForSeconds(0.1f);
+            yield return MEC.Timing.WaitForOneFrame;
             string message = string.Empty;
-            Subclass[] distinctSubclasses = MTFplus.subclasses.Distinct().ToArray();
-            int count = distinctSubclasses.Length;
-            if (MTFplus.Instance.userConsoleList == 1)
+
+            int count = MTFplus.disctinctSubclasses.Count;
+            if (MTFplus.Instance.Configs.userConsoleList == 1)
             {
                 for (int i = 0; i < count; i++)
                 {
-                    message += distinctSubclasses[i].name + (i != count - 1 ? ", " : string.Empty);
+                    message += MTFplus.disctinctSubclasses[i].name + (i != count - 1 ? ", " : string.Empty);
                 }
             }
             else
             {
-                for (int i = 0; i < count; i++)
+                // This is a very CPU intensive in term of frame times task.
+                // This should never be a big deal if your server has a good
+                // enough CPU, but we can't assume no-one will ever run it in
+                // a Pentium from 2003.
+                // Additionally: if this wasn't "optimized", this would
+                // be a pretty easily exploitable command to crash
+                // servers.
+
+                // Let's try to optimize it doing the following approach:
+                // - Compute a maximum of 3 subclasses each frame.
+                // This will prevent an easily exploitable crash method and, 
+                // in the user side, it will take around 10 frames to get
+                // 30 classes. 10 frames are basically 166 miliseconds, while
+                // human reaction times are around 200-300ms. And no-one has
+                // 30 or more subclasses anyways.
+
+                int computedInOneFrame = 0;
+                for (int i = 0; i < count; i++, computedInOneFrame++)
                 {
-                    message += distinctSubclasses[i].ToString() + Environment.NewLine + "------------" + Environment.NewLine;
+                    message += MTFplus.disctinctSubclasses[i].ToString() + Environment.NewLine + "------------" + Environment.NewLine;
+                    
+                    // If you computed 3 or more (unlikely since it's one unique
+                    // process, but better be safe than sorry),
+                    // wait one frame before continuing.
+                    if(computedInOneFrame >= 3)
+                    {
+                        yield return MEC.Timing.WaitForOneFrame;
+                        computedInOneFrame = 0;
+                    }
                 }
+
+                // Nonetheless, please note:
+
+                // A "smarter" approach would be saving the starting Unity's Time.time,
+                // the target refresh rate (in this game is 60Hz) and basically
+                // fetching the time after each iteration. If it goes above (0.5/60)
+                // which would be "half a frame", then you wait one frame, and after
+                // waiting the frame you save the new Time.time variable.
+
+                // The only downside to this is that I don't personally know the inner
+                // logic of Unity, and I don't know if the overhead of fetching
+                // Time.time is worth to optimize it to its last bit.
             }
-            player.SendConsoleMessage(message, "white");
+            player.GetComponent<GameConsoleTransmission>().SendToClient(player.scp079PlayerScript.connectionToClient, message, "white");
         }
     }
 }

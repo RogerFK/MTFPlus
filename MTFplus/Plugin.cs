@@ -1,60 +1,51 @@
-﻿using System.Collections.Generic;
-using Smod2;
-using Smod2.Attributes;
-using Smod2.Config;
-using DMP;
+﻿using System;
+using System.Collections.Generic;
+using EXILED;
 
 namespace MTFplus
 {
-	[PluginDetails(
-		author = "RogerFK",
-		name = "MTF Plus",
-		description = "A plugin so NTF cadets aren't just shit and not fun to play",
-		id = "rogerfk.mtfplus",
-		version = "1.0",
-		SmodMajor = 3,
-		SmodMinor = 5,
-		SmodRevision = 0,
-		configPrefix = "mtfp"
-		)]
 	public class MTFplus : Plugin
 	{
         internal static MTFplus Instance;
-
-        public static List<Subclass> subclasses = new List<Subclass>();
-
-		[ConfigOption]
 		public bool enable = true;
-		[ConfigOption]
-		public bool debug = false;
-		[ConfigOption]
-		public string[] aliases = new string[] { "mtfp", "mtfplus", "m+" };
-		[ConfigOption]
-		public string[] ranks = new string[] { "owner", "admin", "e-girl" };
-		[ConfigOption]
-		public int userConsoleList = 2;
-		[ConfigOption]
-		public float listDelay = 0.3f;
-		[ConfigOption]
-		public float delay = 0.1f;
+        public static List<Subclass> subclasses = new List<Subclass>();
+		public static List<Subclass> disctinctSubclasses = new List<Subclass>();
 
 		public override void OnDisable()
 		{
-			this.Info("Disabled MTF Plus");
+			if (!enable) return;
+
+
 		}
+        internal static Random RNG { private set; get; }
+		public override string getName => "MTFPlus";
+		internal static MTFPEvents LocalEvents { private set; get; }
+		public MTFPConfigs Configs { get; private set; }
+
 		public override void OnEnable()
 		{
-			this.Info("Enabled MTF Plus");
-		}
-        public static System.Random random = new System.Random();
+			enable = Config.GetBool("mtfp_enable", true);
+			if (!enable) return;
+			RNG = new Random();
+			Configs = MTFPConfigs.ReloadConfigs();
+			LocalEvents = new MTFPEvents(this);
 
-		public override void Register()
-		{
-			this.AddEventHandlers(new Events(this), Smod2.Events.Priority.Low);
-			DamagePercentages.Initialize(this, Smod2.Events.Priority.Highest);
-			this.AddCommands(aliases, new MTFPlusCommands(this));
-			if (debug) Info("MTFPlus loaded in Debug Mode. The console will get spammed as hell.");
+			if (this.Configs.debug) DebugMessage("MTFPlus loaded in Debug Mode. The console will get spammed as hell.");
             Instance = this;
+			Events.TeamRespawnEvent += LocalEvents.TeamRespawnEvent;
+			Events.ConsoleCommandEvent += LocalEvents.OnCallCommand;
+			Events.WaitingForPlayersEvent += LocalEvents.OnWaitingForPlayers;
+		}
+
+		public override void OnReload()
+		{
+			
+		}
+
+		// Sorry, I don't like doing Assembly.GetCallingAssembly().FullName 30 times in one single frame.
+		public void DebugMessage(string message)
+		{
+			ServerConsole.AddLog("[MTFPlus] " + message);
 		}
 	}
 }

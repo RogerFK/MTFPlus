@@ -1,14 +1,13 @@
-﻿using Smod2.API;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace MTFplus
 {
-    public struct Subclass
+    public class Subclass
     {
         public readonly string name;
-        public readonly Role role;
+        public readonly RoleType role;
         public readonly List<ItemType> inventory;
         public readonly int[] imInv;
         public readonly float probability;
@@ -16,7 +15,11 @@ namespace MTFplus
         public readonly string broadcast;
         public int maxHP;
 
-        public Subclass(string name, Role role, List<ItemType> inventory, int[] imInv, float probability, int[] ammo, string broadcast, int maxHP)
+        public Subclass()
+        {
+        }
+
+        public Subclass(string name, RoleType role, List<ItemType> inventory, int[] imInv, float probability, int[] ammo, string broadcast, int maxHP)
         {
             this.name = name;
             this.role = role;
@@ -78,6 +81,8 @@ namespace MTFplus
 
         public static bool operator ==(Subclass left, Subclass right) => left.Equals(right);
         public static bool operator !=(Subclass left, Subclass right) => !(left == right);
+
+        public static Subclass Empty = new Subclass();
     }
 
     public static class SubclassMethods
@@ -86,11 +91,11 @@ namespace MTFplus
         {
             // IEnumerable to not get fucky strings with no relation to our word at all
             IEnumerable<Subclass> matchingSubclasses = subclasses.Where(x => x.name.StartsWith(name));
-            Subclass yourSubclass = Empty;
-            int shortestDistance = 0xFFFFFFF, currDistance;
+            Subclass yourSubclass = Subclass.Empty;
+            int shortestDistance = int.MaxValue, currDistance;
             if (matchingSubclasses.Count() <= 0)
             {
-                return Empty;
+                return Subclass.Empty;
             }
             foreach (Subclass sc in matchingSubclasses)
             {
@@ -102,7 +107,6 @@ namespace MTFplus
             }
             return yourSubclass;
         }
-        public static Subclass Empty = new Subclass(string.Empty, Role.UNASSIGNED, null, null, 0, null, string.Empty, 0);
     }
     public static class StringDistance
     {
