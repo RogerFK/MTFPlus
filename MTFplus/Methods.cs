@@ -72,7 +72,7 @@ namespace MTFplus
             bool verbose = plugin != null;
             int SuccessfulCount = 0;
             string directory = FileManager.GetAppFolder() + @"MTFplus";
-
+            MTFplus.computedSubclasses = string.Empty;
             MTFplus.subclasses.Clear();
             if (!Directory.Exists(directory))
             {

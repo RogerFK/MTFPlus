@@ -16,7 +16,11 @@ namespace MTFplus
 		{
 			if (!enable) return;
 
-
+			Instance = null;
+			Events.TeamRespawnEvent -= LocalEvents.TeamRespawnEvent;
+			Events.ConsoleCommandEvent -= LocalEvents.OnCallCommand;
+			Events.WaitingForPlayersEvent -= LocalEvents.OnWaitingForPlayers;
+			Events.RemoteAdminCommandEvent -= CommandEvents.OnRACommand;
 		}
         internal static Random RNG { private set; get; }
 		public override string getName => "MTFPlus";
