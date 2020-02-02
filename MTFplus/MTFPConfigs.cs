@@ -25,7 +25,7 @@ namespace MTFplus
 				userConsoleList = Plugin.Config.GetInt("mtfp_user_console_list", 2),
 				listDelay = Plugin.Config.GetFloat("mtfp_list_delay", 0.3f),
 				delay = Plugin.Config.GetFloat("mtfp_delay", 0.1f),
-				aliases = new HashSet<string>() { "mtfp", "mtfplus", "m+" },
+				aliases = new HashSet<string>() { "MTFP", "MTFPLUS", "M+" },
 				ranks = new HashSet<string>() { "owner", "admin", "e-girl" }
 			};
 
@@ -40,16 +40,21 @@ namespace MTFplus
 				config.aliases.Clear();
 				foreach(string alias in tempAliases)
 				{
-					if(!config.aliases.Contains(alias)) config.aliases.Add(alias);
+					if(!config.aliases.Contains(alias)) config.aliases.Add(alias.ToUpperInvariant());
 				}
 			}
 			
 			var tempRanks = Plugin.Config.GetStringList("mtfp_ranks");
-			if (tempRanks != null && tempRanks.Count > 0)
+			if (tempRanks != null)
 			{
 				config.ranks.Clear();
 				foreach (string rank in tempRanks)
 				{
+					if (rank == "all")
+					{
+						config.ranks.Clear();
+						break;
+					}
 					if (!config.aliases.Contains(rank)) config.ranks.Add(rank);
 				}
 			}

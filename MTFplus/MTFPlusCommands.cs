@@ -31,12 +31,12 @@ namespace MTFplus
 			// big brain time
 			int i;
 			for (i = 0; i < ev.Command.Length && ev.Command[i] != ' '; i++) ;
-
-			if (!plugin.Configs.aliases.Contains(ev.Command.Substring(0, i))) return;
+			
+			if (!plugin.Configs.aliases.Contains(ev.Command.Substring(0, i).ToUpperInvariant())) return;
 
 			ev.Allow = false;
 			string[] args = ev.Command.Split(' ');
-			if (args.Length < 1)
+			if (args.Length < 2)
 			{
 				ev.Sender.RAMessage(GetUsage(), false);
 				return;
@@ -71,9 +71,9 @@ namespace MTFplus
 						return;
 					case "SPAWN":
 						var player = Plugin.GetPlayer(ev.Sender.SenderId);
-						if (player != null && !plugin.Configs.ranks.Contains(player.serverRoles.GlobalBadge))
+						if (plugin.Configs.ranks.Count > 0 && player != null && player.serverRoles.Permissions != ServerStatic.PermissionsHandler.FullPerm && !plugin.Configs.ranks.Contains(player.serverRoles.GlobalBadge))
 						{
-							ev.Sender.RAMessage("You aren't allowed to run this command.", false);
+							ev.Sender.RAMessage($"You aren't allowed to run this command (role {player.serverRoles.GlobalBadge ?? "(null)"} is not allowed to run this command).", false);
 							return;
 						}
 						if (args.Length < 4)
