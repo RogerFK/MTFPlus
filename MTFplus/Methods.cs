@@ -168,7 +168,7 @@ namespace MTFplus
 							}
 							else
 							{
-								plugin.DebugMessage("[ERROR] Invalid item \"" + item + "\" in " + filename + '!');
+								if (verbose) plugin.DebugMessage("[ERROR] Invalid item \"" + item + "\" in " + filename + '!');
 							}
 						}
 						if (inventory.Count == 0 && IMinventory.Length == 0)
@@ -189,7 +189,7 @@ namespace MTFplus
 						}
 						else
 						{
-							plugin.DebugMessage("[ERROR] Invalid role \"" + roleData + "\" in " + filename + '!');
+							if (verbose) plugin.DebugMessage("[ERROR] Invalid role \"" + roleData + "\" in " + filename + '!');
 						}
 					}
 					else if (data.StartsWith("Max"))
