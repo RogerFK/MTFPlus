@@ -16,8 +16,7 @@ namespace MTFplus
 
         internal void TeamRespawnEvent(ref TeamRespawnEvent ev)
         {
-            // Don't compute the MTFPlus algorithm if the plugin is disabled
-            if (!plugin.enable || ev.IsChaos || ev.ToRespawn != null || ev.ToRespawn.Count == 0) return;
+            if (ev.IsChaos || ev.ToRespawn.Count == 0) return;
 
             MTFplus.subclasses.ShuffleList();
             MEC.Timing.RunCoroutine(RespawnPlus(ev.ToRespawn));
@@ -27,8 +26,7 @@ namespace MTFplus
             yield return MEC.Timing.WaitForSeconds(plugin.Configs.listDelay);
 
             ReferenceHub luckyBoi;
-            int curr = MTFplus.RNG.Next(0, Players.Count), timesIterated = 0;
-            
+            int curr = MTFplus.RNG.Next(0, Players.Count), timesIterated = 1;
             /*
                 There's 3 million and a half ways to do this in many other ways.
                 If you're sure you know a better, easier to read and mantainable way to do it
@@ -45,6 +43,7 @@ namespace MTFplus
                 }
                 if (subclass.probability * 100 >= MTFplus.RNG.Next(0, 10000))
                 {
+                    yield return MEC.Timing.WaitForOneFrame;
                     // Evaluate players until a NTF Cadet is found
                     do
                     {
