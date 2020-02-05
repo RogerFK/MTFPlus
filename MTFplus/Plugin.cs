@@ -51,9 +51,6 @@ namespace MTFplus
 		}
 
 		// Sorry, I don't like doing Assembly.GetCallingAssembly().FullName 30 times in one single frame.
-		public void DebugMessage(string message)
-		{
-			ServerConsole.AddLog("[MTFPlus] " + message);
-		}
+		public void DebugMessage(string message) => ServerConsole.AddLog("[MTFPlus] " + message);
 	}
 }
