@@ -17,6 +17,7 @@ namespace MTFplus
 
 		public float delay;
 
+		// great constructor yes
 		public static MTFPConfigs ReloadConfigs()
 		{
 			var config = new MTFPConfigs
